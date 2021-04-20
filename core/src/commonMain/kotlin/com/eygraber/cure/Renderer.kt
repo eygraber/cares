@@ -2,7 +2,7 @@ package com.eygraber.cure
 
 import androidx.compose.runtime.Composable
 
-interface Renderer<E> {
+public interface Renderer<E> {
   @Composable
-  fun render(state: E)
+  public fun render(state: E)
 }

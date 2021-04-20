@@ -11,24 +11,24 @@ import kotlinx.serialization.KSerializer
 internal annotation class BackstackDsl
 
 @ExperimentalAnimationApi
-interface Backstack<FactoryKey> {
-  val size: Int
+public interface Backstack<FactoryKey> {
+  public val size: Int
 
-  fun update(
+  public fun update(
       backstackEntryId: String,
       transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
       @BackstackDsl builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
   )
 
-  fun isEntryInBackstack(backstackEntryId: String): Boolean
+  public fun isEntryInBackstack(backstackEntryId: String): Boolean
 
-  fun isEntryAtTopOfBackstack(backstackEntryId: String): Boolean
+  public fun isEntryAtTopOfBackstack(backstackEntryId: String): Boolean
 
-  fun clearBackstack(
+  public fun clearBackstack(
       transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
   ): Boolean
 
-  fun popBackstack(
+  public fun popBackstack(
       untilBackstackEntryId: String? = null,
       inclusive: Boolean = true,
       transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
@@ -141,25 +141,27 @@ internal class BackstackImpl<FactoryKey>(
   )
 }
 
-@ExperimentalAnimationApi fun <FactoryKey> Backstack<FactoryKey>.updateWithBackstack(
+@ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.updateWithBackstack(
     backstackEntryId: FactoryKey,
     transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
     builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
-) = update(backstackEntryId.toString(), transitionOverride, builder)
+) {
+  update(backstackEntryId.toString(), transitionOverride, builder)
+}
 
-@ExperimentalAnimationApi fun <FactoryKey> Backstack<FactoryKey>.isEntryInBackstack(
+@ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.isEntryInBackstack(
     backstackEntryId: FactoryKey
-) = isEntryInBackstack(backstackEntryId.toString())
+): Boolean = isEntryInBackstack(backstackEntryId.toString())
 
-@ExperimentalAnimationApi fun <FactoryKey> Backstack<FactoryKey>.isEntryAtTopOfBackstack(
+@ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.isEntryAtTopOfBackstack(
     backstackEntryId: FactoryKey
-) = isEntryAtTopOfBackstack(backstackEntryId.toString())
+): Boolean = isEntryAtTopOfBackstack(backstackEntryId.toString())
 
-@ExperimentalAnimationApi fun <FactoryKey> Backstack<FactoryKey>.popBackstack(
+@ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.popBackstack(
     untilBackstackEntryId: FactoryKey? = null,
     inclusive: Boolean = true,
     transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
-) = popBackstack(untilBackstackEntryId.toString(), inclusive, transitionOverride)
+): Boolean = popBackstack(untilBackstackEntryId.toString(), inclusive, transitionOverride)
 
 internal data class BackstackEntry<FactoryKey>(
     val id: String,

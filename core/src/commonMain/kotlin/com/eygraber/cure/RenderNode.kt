@@ -14,7 +14,7 @@ import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.serialization.KSerializer
 
-abstract class RenderNode<E> {
+public abstract class RenderNode<E> {
   protected abstract val renderer: Renderer<E>
   protected abstract val compositor: Compositor<E>
 
@@ -23,7 +23,7 @@ abstract class RenderNode<E> {
   private val currentState: AtomicRef<E?> = atomic(null as E?)
 
   @ExperimentalAnimationApi
-  open val transitions: Transitions? = Transitions(
+  public open val transitions: Transitions? = Transitions(
     enter = slideInHorizontally(
       initialOffsetX = { it * 2 }
     ),
@@ -49,7 +49,7 @@ abstract class RenderNode<E> {
   }
 
   @ExperimentalAnimationApi
-  data class Transitions(
+  public data class Transitions(
     val enter: EnterTransition,
     val exit: ExitTransition,
     val restoreFromBackstack: EnterTransition = enter,
@@ -57,10 +57,10 @@ abstract class RenderNode<E> {
     val show: EnterTransition = enter,
     val hide: ExitTransition = exit
   ) {
-    fun getEnterAndExitTransitions(
+    public fun getEnterAndExitTransitions(
       isShowOrHide: Boolean,
       isBackstackOp: Boolean
-    ) = when {
+    ): Pair<EnterTransition, ExitTransition> = when {
       isShowOrHide -> show to hide
 
       isBackstackOp -> restoreFromBackstack to sendToBackstack
@@ -69,8 +69,8 @@ abstract class RenderNode<E> {
     }
   }
 
-  interface Factory<E> {
-    fun create(
+  public interface Factory<E> {
+    public fun create(
       args: ByteArray?,
       savedState: ByteArray?,
       serializer: StateSerializer

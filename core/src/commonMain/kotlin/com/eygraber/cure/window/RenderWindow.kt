@@ -12,19 +12,20 @@ import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 
 @ExperimentalAnimationApi
-class RenderWindow<FactoryKey>(
-    private val factoryKeySerializer: KSerializer<FactoryKey>,
-    private val stateSerializer: StateSerializer,
-    restoreState: ByteArray? = null,
-    private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*>
+public class RenderWindow<FactoryKey>(
+  private val factoryKeySerializer: KSerializer<FactoryKey>,
+  private val stateSerializer: StateSerializer,
+  restoreState: ByteArray? = null,
+  private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*>
 ) {
   @Composable
-  fun render() {
+  public fun render() {
     val nodes by nodes.collectAsState()
 
     for(node in nodes) {
@@ -32,44 +33,49 @@ class RenderWindow<FactoryKey>(
     }
   }
 
-  fun update(
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
-      @UpdateBuilderDsl builder: UpdateBuilder<FactoryKey>.() -> Unit
-  ) = lock.withLock {
-    nodes.value = nodes.value.applyMutations(
+  public fun update(
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
+    @UpdateBuilderDsl builder: UpdateBuilder<FactoryKey>.() -> Unit
+  ) {
+    lock.withLock {
+      nodes.value = nodes.value.applyMutations(
         WindowMutationBuilder<FactoryKey>(stateSerializer).apply(builder).build(),
         stateSerializer,
         renderNodeFactoryFactory,
         transitionOverride
-    )
+      )
+    }
   }
 
-  fun <R> withBackstack(
-      @BackstackDsl block: Backstack<FactoryKey>.() -> R
-  ) = lock.withLock {
-    backstack.block()
+  public fun <R> withBackstack(
+    @BackstackDsl block: Backstack<FactoryKey>.() -> R
+  ) {
+    lock.withLock {
+      backstack.block()
+    }
   }
 
-  fun serialize(): ByteArray = lock.withLock {
+  public fun serialize(): ByteArray = lock.withLock {
     val data = RenderWindowSaveState(
-        nodes = nodes.value.mapNotNull { nodeHolder ->
-          nodeHolder.toSaveState(stateSerializer)
-        },
-        backstack = backstack.toSaveState()
+      nodes = nodes.value.mapNotNull { nodeHolder ->
+        nodeHolder.toSaveState(stateSerializer)
+      },
+      backstack = backstack.toSaveState()
     )
 
     return stateSerializer.serialize(data, RenderWindowSaveState.serializer(factoryKeySerializer))
   }
 
-  fun contains(key: FactoryKey, id: String = key.toString()) = nodes.value.findLast { holder ->
-    holder.key == key && holder.id == id
-  } != null
+  public fun contains(key: FactoryKey, id: String = key.toString()): Boolean =
+    nodes.value.findLast { holder ->
+      holder.key == key && holder.id == id
+    } != null
 
-  fun updates() = nodes.map {}
+  public fun updates(): Flow<Unit> = nodes.map {}
 
   @Composable
   private fun RenderWindowNode(
-      holder: RenderNodeHolder<FactoryKey>
+    holder: RenderNodeHolder<FactoryKey>
   ) {
     val isBackstackOp = when(holder) {
       is RenderNodeHolder.Attached<*> -> holder.isBeingRestoredFromBackstack
@@ -89,8 +95,8 @@ class RenderWindow<FactoryKey>(
         is RenderNodeHolder.Disappearing<*> -> holder.node.transitions
         else -> null
       }?.getEnterAndExitTransitions(
-          isShowOrHide = holder.isShowOrHideMutation,
-          isBackstackOp = isBackstackOp
+        isShowOrHide = holder.isShowOrHideMutation,
+        isBackstackOp = isBackstackOp
       )
 
       TransitionOverride.NoTransition -> null
@@ -99,8 +105,7 @@ class RenderWindow<FactoryKey>(
     } ?: run {
       if(holder is RenderNodeHolder.Disappearing<FactoryKey>) {
         applyDisappearingMutation(holder)
-      }
-      else {
+      } else {
         node?.render()
       }
 
@@ -111,10 +116,10 @@ class RenderWindow<FactoryKey>(
     val isContentInitiallyVisible = holder.wasContentPreviouslyVisible
 
     AnimatedVisibility(
-        visible = isContentVisible,
-        initiallyVisible = isContentInitiallyVisible,
-        enter = enterTransition,
-        exit = exitTransition
+      visible = isContentVisible,
+      initiallyVisible = isContentInitiallyVisible,
+      enter = enterTransition,
+      exit = exitTransition
     ) {
       node?.render()
 
@@ -130,17 +135,17 @@ class RenderWindow<FactoryKey>(
 
   private fun applyDisappearingMutation(holder: RenderNodeHolder.Disappearing<FactoryKey>) = lock.withLock {
     nodes.value = nodes.value.applyMutations(
-        listOf(
-            WindowMutation.Disappearing(
-                key = holder.key,
-                id = holder.id,
-                isRemoving = holder.isRemoving,
-                isBeingSentToBackstack = holder.isBeingSentToBackstack
-            )
-        ),
-        stateSerializer,
-        renderNodeFactoryFactory,
-        holder.transitionOverride?.let { { _: FactoryKey, _: String -> it } }
+      listOf(
+        WindowMutation.Disappearing(
+          key = holder.key,
+          id = holder.id,
+          isRemoving = holder.isRemoving,
+          isBeingSentToBackstack = holder.isBeingSentToBackstack
+        )
+      ),
+      stateSerializer,
+      renderNodeFactoryFactory,
+      holder.transitionOverride?.let { { _: FactoryKey, _: String -> it } }
     )
   }
 
@@ -151,68 +156,67 @@ class RenderWindow<FactoryKey>(
   init {
     if(restoreState == null) {
       backstack = BackstackImpl(
-          nodes,
-          stateSerializer,
-          renderNodeFactoryFactory
+        nodes,
+        stateSerializer,
+        renderNodeFactoryFactory
       )
-    }
-    else {
+    } else {
       val state = stateSerializer.deserialize(
-          restoreState,
-          RenderWindowSaveState.serializer(factoryKeySerializer)
+        restoreState,
+        RenderWindowSaveState.serializer(factoryKeySerializer)
       )
 
       backstack = BackstackImpl(
-          nodes,
-          stateSerializer,
-          renderNodeFactoryFactory,
-          state.backstack
+        nodes,
+        stateSerializer,
+        renderNodeFactoryFactory,
+        state.backstack
       )
       nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactoryFactory)
     }
   }
 
-  interface UpdateBuilder<FactoryKey> {
-    fun add(
-        key: FactoryKey,
-        isAttached: Boolean = true,
-        isHidden: Boolean = false,
-        id: String = key.toString()
+  public interface UpdateBuilder<FactoryKey> {
+    public fun add(
+      key: FactoryKey,
+      isAttached: Boolean = true,
+      isHidden: Boolean = false,
+      id: String = key.toString()
     )
 
-    fun <T> add(
-        key: FactoryKey,
-        args: T,
-        argsSerializer: KSerializer<T>,
-        isAttached: Boolean = true,
-        isHidden: Boolean = false,
-        id: String = key.toString()
+    public fun <T> add(
+      key: FactoryKey,
+      args: T,
+      argsSerializer: KSerializer<T>,
+      isAttached: Boolean = true,
+      isHidden: Boolean = false,
+      id: String = key.toString()
     )
 
-    fun remove(
-        key: FactoryKey,
-        id: String = key.toString()
+    public fun remove(
+      key: FactoryKey,
+      id: String = key.toString()
     )
 
-    fun attach(
-        key: FactoryKey,
-        id: String = key.toString(),
-        isHidden: Boolean = false
+    public fun attach(
+      key: FactoryKey,
+      id: String = key.toString(),
+      isHidden: Boolean = false
     )
 
-    fun detach(
-        key: FactoryKey,
-        id: String = key.toString()
+    public fun detach(
+      key: FactoryKey,
+      id: String = key.toString()
     )
 
-    fun show(
-        key: FactoryKey,
-        id: String = key.toString()
+    public fun show(
+      key: FactoryKey,
+      id: String = key.toString()
     )
 
-    fun hide(
-        key: FactoryKey,
-        id: String = key.toString()
+    public fun hide(
+      key: FactoryKey,
+      id: String = key.toString()
     )
   }
 }
@@ -220,12 +224,12 @@ class RenderWindow<FactoryKey>(
 @DslMarker
 private annotation class UpdateBuilderDsl
 
-sealed class TransitionOverride {
-  object NoTransition : TransitionOverride()
+public sealed class TransitionOverride {
+  public object NoTransition : TransitionOverride()
 
   @ExperimentalAnimationApi
-  data class Transitions(
-      val enter: EnterTransition,
-      val exit: ExitTransition
+  public data class Transitions(
+    val enter: EnterTransition,
+    val exit: ExitTransition
   ) : TransitionOverride()
 }
