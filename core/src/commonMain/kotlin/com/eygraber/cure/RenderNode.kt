@@ -14,13 +14,13 @@ import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.serialization.KSerializer
 
-public abstract class RenderNode<E> {
-  protected abstract val renderer: Renderer<E>
-  protected abstract val compositor: Compositor<E>
+public abstract class RenderNode<State> {
+  protected abstract val renderer: Renderer<State>
+  protected abstract val compositor: Compositor<State>
 
-  protected abstract val initialState: E
+  protected abstract val initialState: State
 
-  private val currentState: AtomicRef<E?> = atomic(null as E?)
+  private val currentState: AtomicRef<State?> = atomic(null as State?)
 
   @ExperimentalAnimationApi
   public open val transitions: Transitions? = Transitions(
@@ -40,7 +40,7 @@ public abstract class RenderNode<E> {
     renderer.render(data)
   }
 
-  protected open val serializer: KSerializer<E>? = null
+  protected open val serializer: KSerializer<State>? = null
 
   internal fun serialize(serializer: StateSerializer): ByteArray? = currentState.value?.let { currentState ->
     this.serializer?.let { entitySerializer ->
@@ -69,11 +69,11 @@ public abstract class RenderNode<E> {
     }
   }
 
-  public interface Factory<E> {
+  public interface Factory<State> {
     public fun create(
       args: ByteArray?,
       savedState: ByteArray?,
       serializer: StateSerializer
-    ): RenderNode<E>
+    ): RenderNode<State>
   }
 }
