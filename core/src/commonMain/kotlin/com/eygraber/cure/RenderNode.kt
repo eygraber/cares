@@ -26,6 +26,12 @@ public abstract class RenderNode<State, Event> {
 
   protected open val eventFlow: SharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
 
+  private val eventEmitter: (Event) -> Boolean by lazy {
+    { event: Event ->
+      (eventFlow as MutableSharedFlow<Event>).tryEmit(event)
+    }
+  }
+
   @ExperimentalAnimationApi
   public open val transitions: Transitions? = Transitions(
     enter = slideInHorizontally(
@@ -38,12 +44,14 @@ public abstract class RenderNode<State, Event> {
     hide = fadeOut()
   )
 
-  @Composable internal fun render() {
+  @Composable
+  internal fun render() {
     val data by compositor.stateFlow.collectAsState(initialState)
     currentState.value = data
-    renderer.render(data) { event ->
-      (eventFlow as MutableSharedFlow<Event>).tryEmit(event)
+    renderer.doIfEventEmitter { emitter ->
+      emitter.setEmitter(eventEmitter)
     }
+    renderer.render(data)
   }
 
   protected open val serializer: KSerializer<State>? = null
@@ -81,5 +89,14 @@ public abstract class RenderNode<State, Event> {
       savedState: ByteArray?,
       serializer: StateSerializer
     ): RenderNode<State, Event>
+  }
+}
+
+@Suppress("UNCHECKED_CAST")
+private inline fun <State, Event> Renderer<State, Event>.doIfEventEmitter(
+  block: (EventEmitterImpl<Event>) -> Unit
+) {
+  runCatching {
+    (this as? EventEmitterImpl<Event>)?.let(block)
   }
 }

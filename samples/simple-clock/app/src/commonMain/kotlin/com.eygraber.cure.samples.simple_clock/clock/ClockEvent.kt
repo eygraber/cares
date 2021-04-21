@@ -1,3 +1,5 @@
 package com.eygraber.cure.samples.simple_clock.clock
 
-sealed class ClockEvent
+sealed class ClockEvent {
+  object SettingsClicked : ClockEvent()
+}
