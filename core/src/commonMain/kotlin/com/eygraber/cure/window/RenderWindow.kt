@@ -22,7 +22,7 @@ public class RenderWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
   private val stateSerializer: StateSerializer,
   restoreState: ByteArray? = null,
-  private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*>
+  private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
 ) {
   @Composable
   public fun render() {

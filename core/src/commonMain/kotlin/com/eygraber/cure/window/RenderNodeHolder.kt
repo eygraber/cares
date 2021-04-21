@@ -29,7 +29,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
       override val wasContentPreviouslyVisible: Boolean,
       override val isHidden: Boolean,
       override val args: ByteArray?,
-      val node: RenderNode<*>,
+      val node: RenderNode<*, *>,
       val isBeingRestoredFromBackstack: Boolean,
       override val transitionOverride: TransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>()
@@ -41,7 +41,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
       override val wasContentPreviouslyVisible: Boolean,
       override val isHidden: Boolean,
       override val args: ByteArray?,
-      val node: RenderNode<*>,
+      val node: RenderNode<*, *>,
       val isRemoving: Boolean,
       val isBeingSentToBackstack: Boolean,
       override val transitionOverride: TransitionOverride? = null

@@ -12,7 +12,7 @@ internal class RenderWindowSaveState<FactoryKey>(
 ) {
   @ExperimentalAnimationApi fun toRenderNodeHolders(
       stateSerializer: StateSerializer,
-      renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*>
+      renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
   ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactoryFactory) }
 }
 
@@ -67,7 +67,7 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
 ) {
   @ExperimentalAnimationApi fun toRenderNodeHolder(
       stateSerializer: StateSerializer,
-      renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*>
+      renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
   ) = if(isAttached) {
     RenderNodeHolder.Attached(
         key = key,

@@ -1,7 +1,7 @@
 package com.eygraber.cure.samples.simple_clock.clock
 
-data class ClockEntity(val time: String) {
+data class ClockState(val time: String) {
   companion object {
-    fun default() = ClockEntity("")
+    fun default() = ClockState("")
   }
 }

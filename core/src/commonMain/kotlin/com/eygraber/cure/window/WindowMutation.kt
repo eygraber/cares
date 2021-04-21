@@ -114,7 +114,7 @@ internal sealed class WindowMutation<FactoryKey> {
 internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
     mutations: List<WindowMutation<FactoryKey>>,
     stateSerializer: StateSerializer,
-    renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*>,
+    renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>,
     transitionOverrider: ((FactoryKey, String) -> TransitionOverride?)? = null
 ): List<RenderNodeHolder<FactoryKey>> {
   val window = toMutableList()

@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.eygraber.compose.colorpicker.ColorPicker
 import com.eygraber.cure.Renderer
 
-class ClockRenderer : Renderer<ClockEntity> {
+class ClockRenderer : Renderer<ClockState, ClockEvent> {
   @Composable
-  override fun render(state: ClockEntity) {
+  override fun render(state: ClockState, emitEvent: (ClockEvent) -> Boolean) {
     Card(
       shape = MaterialTheme.shapes.small.copy(all = CornerSize(8.dp)),
       elevation = 4.dp,

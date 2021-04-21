@@ -12,15 +12,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.KSerializer
 
-public abstract class RenderNode<State> {
-  protected abstract val renderer: Renderer<State>
-  protected abstract val compositor: Compositor<State>
+public abstract class RenderNode<State, Event> {
+  protected abstract val renderer: Renderer<State, Event>
+  protected abstract val compositor: Compositor<State, Event>
 
   protected abstract val initialState: State
 
   private val currentState: AtomicRef<State?> = atomic(null as State?)
+
+  protected open val eventFlow: SharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
 
   @ExperimentalAnimationApi
   public open val transitions: Transitions? = Transitions(
@@ -37,7 +41,9 @@ public abstract class RenderNode<State> {
   @Composable internal fun render() {
     val data by compositor.stateFlow.collectAsState(initialState)
     currentState.value = data
-    renderer.render(data)
+    renderer.render(data) { event ->
+      (eventFlow as MutableSharedFlow<Event>).tryEmit(event)
+    }
   }
 
   protected open val serializer: KSerializer<State>? = null
@@ -69,11 +75,11 @@ public abstract class RenderNode<State> {
     }
   }
 
-  public interface Factory<State> {
+  public interface Factory<State, Event> {
     public fun create(
       args: ByteArray?,
       savedState: ByteArray?,
       serializer: StateSerializer
-    ): RenderNode<State>
+    ): RenderNode<State, Event>
   }
 }
