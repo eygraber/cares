@@ -3,9 +3,10 @@ package com.eygraber.cure.samples.simple_clock.clock
 import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
 
-class ClockRenderNode : RenderNode<ClockState, ClockEvent>() {
-  override val initialState: ClockState = ClockState.default()
-  override val compositor = ClockCompositor()
+class ClockRenderNode(
+  initialState: ClockState
+) : RenderNode<ClockState, ClockEvent>(initialState) {
+  override val compositor = ClockCompositor(currentState)
   override val renderer = ClockRenderer()
 
   companion object Factory : RenderNode.Factory<ClockState, ClockEvent> {
@@ -13,6 +14,8 @@ class ClockRenderNode : RenderNode<ClockState, ClockEvent>() {
       args: ByteArray?,
       savedState: ByteArray?,
       serializer: StateSerializer
-    ) = ClockRenderNode()
+    ) = ClockRenderNode(
+      initialState = ClockState.default()
+    )
   }
 }

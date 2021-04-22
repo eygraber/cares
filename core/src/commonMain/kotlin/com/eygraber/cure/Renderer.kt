@@ -1,8 +1,16 @@
 package com.eygraber.cure
 
 import androidx.compose.runtime.Composable
+import kotlinx.atomicfu.AtomicRef
+import kotlinx.atomicfu.atomic
 
-public interface Renderer<State, Event> {
+public abstract class Renderer<State, Event> {
+  internal val eventEmitter: AtomicRef<((Event) -> Boolean)?> = atomic(null)
+
+  protected fun emitEvent(event: Event) {
+    eventEmitter.value?.invoke(event) ?: error("The emitter was never initialized")
+  }
+
   @Composable
-  public fun render(state: State)
+  public abstract fun render(state: State)
 }

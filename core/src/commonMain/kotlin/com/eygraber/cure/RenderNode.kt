@@ -10,19 +10,19 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
 
-public abstract class RenderNode<State, Event> {
+public abstract class RenderNode<State, Event>(
+  initialState: State
+) {
   protected abstract val renderer: Renderer<State, Event>
   protected abstract val compositor: Compositor<State, Event>
 
-  protected abstract val initialState: State
-
-  private val currentState: AtomicRef<State?> = atomic(null as State?)
+  protected val currentState: StateFlow<State> = MutableStateFlow(initialState)
 
   protected open val eventFlow: SharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
 
@@ -46,11 +46,9 @@ public abstract class RenderNode<State, Event> {
 
   @Composable
   internal fun render() {
-    val data by compositor.stateFlow.collectAsState(initialState)
-    currentState.value = data
-    renderer.doIfEventEmitter { emitter ->
-      emitter.setEmitter(eventEmitter)
-    }
+    val data by compositor.stateFlow.collectAsState(currentState.value)
+    (currentState as MutableStateFlow).value = data
+    renderer.eventEmitter.compareAndSet(null, eventEmitter)
     renderer.render(data)
   }
 
@@ -89,14 +87,5 @@ public abstract class RenderNode<State, Event> {
       savedState: ByteArray?,
       serializer: StateSerializer
     ): RenderNode<State, Event>
-  }
-}
-
-@Suppress("UNCHECKED_CAST")
-private inline fun <State, Event> Renderer<State, Event>.doIfEventEmitter(
-  block: (EventEmitterImpl<Event>) -> Unit
-) {
-  runCatching {
-    (this as? EventEmitterImpl<Event>)?.let(block)
   }
 }
