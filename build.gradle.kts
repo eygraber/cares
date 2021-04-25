@@ -13,7 +13,7 @@ buildscript {
     classpath("com.android.tools.build:gradle:7.0.0-alpha14")
     classpath("org.jetbrains.compose:compose-gradle-plugin:0.4.0-build184")
     classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.15.2")
-    classpath("com.vanniktech:gradle-maven-publish-plugin:0.14.2")
+    classpath("com.vanniktech:gradle-maven-publish-plugin:0.15.0")
     classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.4.20")
   }
 }
