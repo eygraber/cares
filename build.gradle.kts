@@ -11,10 +11,10 @@ buildscript {
     classpath(kotlin("gradle-plugin", version = "1.4.32"))
     classpath(kotlin("serialization", version = "1.4.32"))
     classpath("com.android.tools.build:gradle:7.0.0-alpha14")
-    classpath("org.jetbrains.compose:compose-gradle-plugin:0.4.0-build184")
+    classpath("org.jetbrains.compose:compose-gradle-plugin:0.4.0-build185")
     classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.15.2")
-    classpath("com.vanniktech:gradle-maven-publish-plugin:0.15.0")
-    classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.4.20")
+    classpath("com.vanniktech:gradle-maven-publish-plugin:0.15.1")
+    classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.4.32")
   }
 }
 
@@ -30,7 +30,6 @@ allprojects {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
   }
 
   plugins.withId("org.jetbrains.kotlin.multiplatform") {
