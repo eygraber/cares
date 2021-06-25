@@ -20,8 +20,8 @@ kotlin {
       dependencies {
         implementation(compose.desktop.currentOs)
         implementation(project(":samples:simple-clock:app"))
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
       }
     }
   }

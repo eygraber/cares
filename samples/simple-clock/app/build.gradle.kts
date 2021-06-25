@@ -12,11 +12,11 @@ kotlin {
             dependencies {
                 api(project(":core"))
 
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
-                implementation("com.soywiz.korlibs.klock:klock:2.0.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+                implementation("com.soywiz.korlibs.klock:klock:2.1.2")
 
-                implementation("com.eygraber:compose-color-picker:0.0.1-SNAPSHOT")
+                implementation("com.eygraber:compose-color-picker:0.0.2-SNAPSHOT")
 
                 api(compose.runtime)
                 api(compose.foundation)
