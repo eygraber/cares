@@ -23,48 +23,47 @@ internal sealed class RenderNodeHolder<FactoryKey> {
 
   @Immutable
   data class Attached<FactoryKey>(
-      override val key: FactoryKey,
-      override val id: String,
-      override val isShowOrHideMutation: Boolean,
-      override val wasContentPreviouslyVisible: Boolean,
-      override val isHidden: Boolean,
-      override val args: ByteArray?,
-      val node: RenderNode<*, *>,
-      val isBeingRestoredFromBackstack: Boolean,
-      override val transitionOverride: TransitionOverride? = null
+    override val key: FactoryKey,
+    override val id: String,
+    override val isShowOrHideMutation: Boolean,
+    override val wasContentPreviouslyVisible: Boolean,
+    override val isHidden: Boolean,
+    override val args: ByteArray?,
+    val node: RenderNode<*, *>,
+    val isBeingRestoredFromBackstack: Boolean,
+    override val transitionOverride: TransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>()
 
   @Immutable
   data class Disappearing<FactoryKey>(
-      override val key: FactoryKey,
-      override val id: String,
-      override val wasContentPreviouslyVisible: Boolean,
-      override val isHidden: Boolean,
-      override val args: ByteArray?,
-      val node: RenderNode<*, *>,
-      val isRemoving: Boolean,
-      val isBeingSentToBackstack: Boolean,
-      override val transitionOverride: TransitionOverride? = null
+    override val key: FactoryKey,
+    override val id: String,
+    override val wasContentPreviouslyVisible: Boolean,
+    override val isHidden: Boolean,
+    override val args: ByteArray?,
+    val node: RenderNode<*, *>,
+    val isRemoving: Boolean,
+    val isBeingSentToBackstack: Boolean,
+    override val transitionOverride: TransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation = false
   }
 
   @Immutable
   data class Detached<FactoryKey>(
-      override val key: FactoryKey,
-      override val id: String,
-      override val wasContentPreviouslyVisible: Boolean,
-      override val isHidden: Boolean,
-      override val args: ByteArray?,
-      val savedState: ByteArray?,
-      override val transitionOverride: TransitionOverride? = null
+    override val key: FactoryKey,
+    override val id: String,
+    override val wasContentPreviouslyVisible: Boolean,
+    override val isHidden: Boolean,
+    override val args: ByteArray?,
+    val savedState: ByteArray?,
+    override val transitionOverride: TransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation: Boolean = false
   }
 
-  final override fun toString(): String {
-    return "${this::class.simpleName}(key=$key, id='$id', isHidden=$isHidden)"
-  }
+  final override fun toString() =
+    "${this::class.simpleName}(key=$key, id='$id', isHidden=$isHidden)"
 
   final override fun equals(other: Any?): Boolean {
     if(this === other) return true

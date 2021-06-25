@@ -3,11 +3,14 @@ plugins {
   kotlin("plugin.serialization")
   id("org.jetbrains.compose")
   id("kotlinx-atomicfu")
+  detekt
+  `detekt-hotfix`
+  publish
 }
 
 kotlin {
   explicitApi()
-  
+
   jvm()
 
   sourceSets {
@@ -35,5 +38,3 @@ kotlin {
     }
   }
 }
-
-apply(from = File(rootDir, "publishing.gradle"))

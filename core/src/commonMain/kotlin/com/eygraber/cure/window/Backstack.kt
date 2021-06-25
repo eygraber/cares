@@ -15,9 +15,9 @@ public interface Backstack<FactoryKey> {
   public val size: Int
 
   public fun update(
-      backstackEntryId: String,
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
-      @BackstackDsl builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
+    backstackEntryId: String,
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
+    @BackstackDsl builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
   )
 
   public fun isEntryInBackstack(backstackEntryId: String): Boolean
@@ -25,56 +25,56 @@ public interface Backstack<FactoryKey> {
   public fun isEntryAtTopOfBackstack(backstackEntryId: String): Boolean
 
   public fun clearBackstack(
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
   ): Boolean
 
   public fun popBackstack(
-      untilBackstackEntryId: String? = null,
-      inclusive: Boolean = true,
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
+    untilBackstackEntryId: String? = null,
+    inclusive: Boolean = true,
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
   ): Boolean
 }
 
 @ExperimentalAnimationApi
 internal class BackstackImpl<FactoryKey>(
-    private val nodes: MutableStateFlow<List<RenderNodeHolder<FactoryKey>>>,
-    private val stateSerializer: StateSerializer,
-    private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>,
-    saveState: BackstackSaveState<FactoryKey>? = null
+  private val nodes: MutableStateFlow<List<RenderNodeHolder<FactoryKey>>>,
+  private val stateSerializer: StateSerializer,
+  private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>,
+  saveState: BackstackSaveState<FactoryKey>? = null
 ) : Backstack<FactoryKey> {
   private val stack = atomic(saveState?.toBackstack() ?: emptyList())
 
   override val size: Int get() = stack.value.size
 
   override fun update(
-      backstackEntryId: String,
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)?,
-      builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
+    backstackEntryId: String,
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)?,
+    builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
   ) {
     val (mutations, backstackMutations) = WindowMutationBackstackBuilder(
-        WindowMutationBuilder<FactoryKey>(stateSerializer)
+      WindowMutationBuilder<FactoryKey>(stateSerializer)
     ).apply(builder).build()
 
     stack.value = stack.value + listOf(
-        BackstackEntry(
-            id = backstackEntryId,
-            mutations = backstackMutations
-        )
+      BackstackEntry(
+        id = backstackEntryId,
+        mutations = backstackMutations
+      )
     )
 
     nodes.value = nodes.value.applyMutations(
-        mutations,
-        stateSerializer,
-        renderNodeFactoryFactory,
-        transitionOverride
+      mutations,
+      stateSerializer,
+      renderNodeFactoryFactory,
+      transitionOverride
     )
   }
 
   override fun isEntryInBackstack(backstackEntryId: String) =
-      stack.value.indexOfLast { it.id == backstackEntryId } >= 0
+    stack.value.indexOfLast { it.id == backstackEntryId } >= 0
 
   override fun isEntryAtTopOfBackstack(backstackEntryId: String) =
-      stack.value.lastOrNull()?.id == backstackEntryId
+    stack.value.lastOrNull()?.id == backstackEntryId
 
   override fun clearBackstack(transitionOverride: ((FactoryKey, String) -> TransitionOverride?)?): Boolean {
     val originalSize = size
@@ -89,9 +89,9 @@ internal class BackstackImpl<FactoryKey>(
   }
 
   override fun popBackstack(
-      untilBackstackEntryId: String?,
-      inclusive: Boolean,
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)?
+    untilBackstackEntryId: String?,
+    inclusive: Boolean,
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)?
   ): Boolean {
     val originalSize = size
 
@@ -113,8 +113,8 @@ internal class BackstackImpl<FactoryKey>(
   }
 
   private fun tryToActuallyPopBackstack(
-      transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
-      popPredicate: (BackstackEntry<FactoryKey>) -> Boolean
+    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
+    popPredicate: (BackstackEntry<FactoryKey>) -> Boolean
   ) = when(val peek = stack.value.lastOrNull()) {
     null -> false
 
@@ -123,10 +123,10 @@ internal class BackstackImpl<FactoryKey>(
         stack.value = stack.value.dropLast(1)
 
         nodes.value = nodes.value.applyMutations(
-            peek.mutations,
-            stateSerializer,
-            renderNodeFactoryFactory,
-            transitionOverride
+          peek.mutations,
+          stateSerializer,
+          renderNodeFactoryFactory,
+          transitionOverride
         )
 
         true
@@ -137,45 +137,45 @@ internal class BackstackImpl<FactoryKey>(
   }
 
   fun toSaveState() = BackstackSaveState(
-      stack = stack.value.map(BackstackEntry<FactoryKey>::toSaveState)
+    stack = stack.value.map(BackstackEntry<FactoryKey>::toSaveState)
   )
 }
 
 @ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.updateWithBackstack(
-    backstackEntryId: FactoryKey,
-    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
-    builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
+  backstackEntryId: FactoryKey,
+  transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
+  builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
 ) {
   update(backstackEntryId.toString(), transitionOverride, builder)
 }
 
 @ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.isEntryInBackstack(
-    backstackEntryId: FactoryKey
+  backstackEntryId: FactoryKey
 ): Boolean = isEntryInBackstack(backstackEntryId.toString())
 
 @ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.isEntryAtTopOfBackstack(
-    backstackEntryId: FactoryKey
+  backstackEntryId: FactoryKey
 ): Boolean = isEntryAtTopOfBackstack(backstackEntryId.toString())
 
 @ExperimentalAnimationApi public fun <FactoryKey> Backstack<FactoryKey>.popBackstack(
-    untilBackstackEntryId: FactoryKey? = null,
-    inclusive: Boolean = true,
-    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
+  untilBackstackEntryId: FactoryKey? = null,
+  inclusive: Boolean = true,
+  transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null
 ): Boolean = popBackstack(untilBackstackEntryId.toString(), inclusive, transitionOverride)
 
 internal data class BackstackEntry<FactoryKey>(
-    val id: String,
-    val mutations: List<WindowMutation<FactoryKey>>
+  val id: String,
+  val mutations: List<WindowMutation<FactoryKey>>
 ) {
   fun toSaveState() = BackstackEntrySaveState(
-      id = id,
-      mutations = mutations.map(WindowMutation<FactoryKey>::toSaveState)
+    id = id,
+    mutations = mutations.map(WindowMutation<FactoryKey>::toSaveState)
   )
 }
 
 @ExperimentalAnimationApi
 internal class WindowMutationBackstackBuilder<FactoryKey>(
-    private val builder: WindowMutationBuilder<FactoryKey>
+  private val builder: WindowMutationBuilder<FactoryKey>
 ) : RenderWindow.UpdateBuilder<FactoryKey> {
   private val backstackMutations = mutableListOf<WindowMutation<FactoryKey>>()
 
@@ -183,24 +183,24 @@ internal class WindowMutationBackstackBuilder<FactoryKey>(
     builder.add(key, isAttached, isHidden, id)
 
     backstackMutations += WindowMutation.Remove(
-        key = key,
-        id = id
+      key = key,
+      id = id
     )
   }
 
   override fun <T> add(
-      key: FactoryKey,
-      args: T,
-      argsSerializer: KSerializer<T>,
-      isAttached: Boolean,
-      isHidden: Boolean,
-      id: String
+    key: FactoryKey,
+    args: T,
+    argsSerializer: KSerializer<T>,
+    isAttached: Boolean,
+    isHidden: Boolean,
+    id: String
   ) {
     builder.add(key, args, argsSerializer, isAttached, isHidden, id)
 
     backstackMutations += WindowMutation.Remove(
-        key = key,
-        id = id
+      key = key,
+      id = id
     )
   }
 
@@ -212,9 +212,9 @@ internal class WindowMutationBackstackBuilder<FactoryKey>(
     builder.attach(key, id, isHidden)
 
     backstackMutations += WindowMutation.Detach(
-        key = key,
-        id = id,
-        isBeingSentToBackstack = true
+      key = key,
+      id = id,
+      isBeingSentToBackstack = true
     )
   }
 
@@ -222,10 +222,10 @@ internal class WindowMutationBackstackBuilder<FactoryKey>(
     builder.detach(key, id, isBeingSentToBackstack = true)
 
     backstackMutations += WindowMutation.Attach(
-        key = key,
-        id = id,
-        isHidden = null,
-        isBeingRestoredFromBackstack = true
+      key = key,
+      id = id,
+      isHidden = null,
+      isBeingRestoredFromBackstack = true
     )
   }
 
@@ -233,8 +233,8 @@ internal class WindowMutationBackstackBuilder<FactoryKey>(
     builder.show(key, id)
 
     backstackMutations += WindowMutation.Hide(
-        key = key,
-        id = id
+      key = key,
+      id = id
     )
   }
 
@@ -242,8 +242,8 @@ internal class WindowMutationBackstackBuilder<FactoryKey>(
     builder.hide(key, id)
 
     backstackMutations += WindowMutation.Show(
-        key = key,
-        id = id
+      key = key,
+      id = id
     )
   }
 

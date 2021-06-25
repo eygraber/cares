@@ -4,7 +4,6 @@ import com.eygraber.cure.Compositor
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.startWith
 
 class ClockCompositor(
   private val currentState: StateFlow<ClockState>

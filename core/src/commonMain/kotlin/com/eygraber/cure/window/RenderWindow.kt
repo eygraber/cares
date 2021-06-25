@@ -166,7 +166,8 @@ public class RenderWindow<FactoryKey>(
         stateSerializer,
         renderNodeFactoryFactory
       )
-    } else {
+    }
+    else {
       val state = stateSerializer.deserialize(
         restoreState,
         RenderWindowSaveState.serializer(factoryKeySerializer)
