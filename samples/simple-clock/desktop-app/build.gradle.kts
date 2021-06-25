@@ -4,6 +4,8 @@ plugins {
   kotlin("multiplatform")
   kotlin("plugin.serialization")
   id("org.jetbrains.compose")
+  detekt
+  `detekt-hotfix`
 }
 
 kotlin {
@@ -12,7 +14,6 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-
       }
     }
 
