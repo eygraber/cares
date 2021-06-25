@@ -4,10 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
 import kotlinx.atomicfu.locks.reentrantLock
@@ -105,7 +107,8 @@ public class RenderWindow<FactoryKey>(
     } ?: run {
       if(holder is RenderNodeHolder.Disappearing<FactoryKey>) {
         applyDisappearingMutation(holder)
-      } else {
+      }
+      else {
         node?.render()
       }
 
@@ -115,9 +118,12 @@ public class RenderWindow<FactoryKey>(
     val isContentVisible = !holder.isHidden && holder is RenderNodeHolder.Attached<*>
     val isContentInitiallyVisible = holder.wasContentPreviouslyVisible
 
+    val visibleState = remember {
+      MutableTransitionState(isContentInitiallyVisible)
+    }.apply { targetState = isContentVisible }
+
     AnimatedVisibility(
-      visible = isContentVisible,
-      initiallyVisible = isContentInitiallyVisible,
+      visibleState = visibleState,
       enter = enterTransition,
       exit = exitTransition
     ) {
