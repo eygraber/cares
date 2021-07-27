@@ -1,6 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 buildscript {
+  apply(from = project.file("buildSrc/versions.gradle"))
+
   repositories {
     mavenCentral()
   }
@@ -8,7 +10,8 @@ buildscript {
   dependencies {
     // this is not in buildSrc because it leaks kotlin 1.5.X which clashes with Gradle
     // https://github.com/gradle/gradle/issues/16345
-    classpath(kotlin("serialization", version = "1.5.10"))
+    // https://github.com/Kotlin/kotlinx.serialization/issues/1617
+    classpath(kotlin("serialization", version = kotlinVersion))
   }
 }
 
