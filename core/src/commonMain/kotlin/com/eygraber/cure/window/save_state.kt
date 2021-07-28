@@ -26,7 +26,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
     wasContentPreviouslyVisible = wasContentPreviouslyVisible,
     isHidden = isHidden,
     args = args,
-    savedState = node.serialize(stateSerializer),
+    savedState = node.serializeCurrentState(stateSerializer),
     isAttached = true
   )
 
@@ -39,7 +39,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      savedState = node.serialize(stateSerializer),
+      savedState = node.serializeCurrentState(stateSerializer),
       isAttached = true
     )
   }

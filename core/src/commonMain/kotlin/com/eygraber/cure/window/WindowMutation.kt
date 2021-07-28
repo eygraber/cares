@@ -115,12 +115,12 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
   mutations: List<WindowMutation<FactoryKey>>,
   stateSerializer: StateSerializer,
   renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>,
-  transitionOverrider: ((FactoryKey, String) -> TransitionOverride?)? = null
+  transitionOverrider: ((FactoryKey, String) -> RenderWindowTransitionOverride?)? = null
 ): List<RenderNodeHolder<FactoryKey>> {
   val window = toMutableList()
 
   fun WindowMutation<FactoryKey>.applyMutation(
-    mutate: (RenderNodeHolder<FactoryKey>, TransitionOverride?) -> RenderNodeHolder<FactoryKey>?
+    mutate: (RenderNodeHolder<FactoryKey>, RenderWindowTransitionOverride?) -> RenderNodeHolder<FactoryKey>?
   ) {
     window
       .indexOfLast { holder -> holder.key == key && holder.id == id }
@@ -267,7 +267,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               wasContentPreviouslyVisible = !holder.isHidden,
               isHidden = holder.isHidden,
               args = holder.args,
-              savedState = holder.node.serialize(stateSerializer),
+              savedState = holder.node.serializeCurrentState(stateSerializer),
               transitionOverride = transitionOverride
             )
           }

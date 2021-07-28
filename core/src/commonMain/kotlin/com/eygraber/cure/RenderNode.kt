@@ -1,12 +1,5 @@
 package com.eygraber.cure
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,7 +17,7 @@ public abstract class RenderNode<State, Event>(
 
   protected val currentState: StateFlow<State> = MutableStateFlow(initialState)
 
-  protected open val eventFlow: SharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
+  private val eventFlow: SharedFlow<Event> by lazy(::createEventFlow)
 
   private val eventEmitter: (Event) -> Boolean by lazy {
     { event: Event ->
@@ -32,20 +25,8 @@ public abstract class RenderNode<State, Event>(
     }
   }
 
-  @ExperimentalAnimationApi
-  public open val transitions: Transitions? = Transitions(
-    enter = slideInHorizontally(
-      initialOffsetX = { it * 2 }
-    ),
-    exit = slideOutHorizontally(
-      targetOffsetX = { -it }
-    ),
-    show = fadeIn(),
-    hide = fadeOut()
-  )
-
   @Composable
-  internal fun render() {
+  public fun render() {
     val data by compositor.stateFlow.collectAsState(currentState.value)
     (currentState as MutableStateFlow).value = data
     renderer.eventEmitter.compareAndSet(null, eventEmitter)
@@ -54,32 +35,19 @@ public abstract class RenderNode<State, Event>(
 
   protected open val serializer: KSerializer<State>? = null
 
-  internal fun serialize(serializer: StateSerializer): ByteArray? = currentState.value?.let { currentState ->
-    this.serializer?.let { entitySerializer ->
-      serializer.serialize(currentState, entitySerializer)
+  /**
+   * Serializes the value from [currentState] to a [ByteArray] using [stateSerializer].
+   *
+   * Returns null if either the value from [currentState] or [serializer] is null.
+   */
+  public fun serializeCurrentState(stateSerializer: StateSerializer): ByteArray? =
+    currentState.value?.let { currentState ->
+      serializer?.let { serializer ->
+        stateSerializer.serialize(currentState, serializer)
+      }
     }
-  }
 
-  @ExperimentalAnimationApi
-  public data class Transitions(
-    val enter: EnterTransition,
-    val exit: ExitTransition,
-    val restoreFromBackstack: EnterTransition = enter,
-    val sendToBackstack: ExitTransition = exit,
-    val show: EnterTransition = enter,
-    val hide: ExitTransition = exit
-  ) {
-    public fun getEnterAndExitTransitions(
-      isShowOrHide: Boolean,
-      isBackstackOp: Boolean
-    ): Pair<EnterTransition, ExitTransition> = when {
-      isShowOrHide -> show to hide
-
-      isBackstackOp -> restoreFromBackstack to sendToBackstack
-
-      else -> enter to exit
-    }
-  }
+  protected open fun createEventFlow(): MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
 
   public interface Factory<State, Event> {
     public fun create(

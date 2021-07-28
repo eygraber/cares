@@ -1,8 +1,6 @@
 package com.eygraber.cure.window
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.runtime.Composable
@@ -18,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 @ExperimentalAnimationApi
 public class RenderWindow<FactoryKey>(
@@ -36,7 +35,7 @@ public class RenderWindow<FactoryKey>(
   }
 
   public fun update(
-    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
+    transitionOverride: ((FactoryKey, String) -> RenderWindowTransitionOverride?)? = null,
     @UpdateBuilderDsl builder: UpdateBuilder<FactoryKey>.() -> Unit
   ) {
     lock.withLock {
@@ -92,18 +91,14 @@ public class RenderWindow<FactoryKey>(
     }
 
     val (enterTransition, exitTransition) = when(val override = holder.transitionOverride) {
-      null -> when(holder) {
-        is RenderNodeHolder.Attached<*> -> holder.node.transitions
-        is RenderNodeHolder.Disappearing<*> -> holder.node.transitions
-        else -> null
-      }?.getEnterAndExitTransitions(
+      null -> RenderWindowTransitions.Default.getEnterAndExitTransitions(
         isShowOrHide = holder.isShowOrHideMutation,
         isBackstackOp = isBackstackOp
       )
 
-      TransitionOverride.NoTransition -> null
+      RenderWindowTransitionOverride.NoTransition -> null
 
-      is TransitionOverride.Transitions -> override.enter to override.exit
+      is RenderWindowTransitionOverride.Transitions -> override.enter to override.exit
     } ?: run {
       if(holder is RenderNodeHolder.Disappearing<FactoryKey>) {
         applyDisappearingMutation(holder)
@@ -228,15 +223,23 @@ public class RenderWindow<FactoryKey>(
   }
 }
 
+@ExperimentalAnimationApi
+public inline fun <reified T, FactoryKey> RenderWindow.UpdateBuilder<FactoryKey>.add(
+  key: FactoryKey,
+  args: T,
+  isAttached: Boolean = true,
+  isHidden: Boolean = false,
+  id: String = key.toString()
+) {
+  add(
+    key = key,
+    args = args,
+    argsSerializer = serializer(),
+    isAttached = isAttached,
+    isHidden = isHidden,
+    id = id
+  )
+}
+
 @DslMarker
 private annotation class UpdateBuilderDsl
-
-public sealed class TransitionOverride {
-  public object NoTransition : TransitionOverride()
-
-  @ExperimentalAnimationApi
-  public data class Transitions(
-    val enter: EnterTransition,
-    val exit: ExitTransition
-  ) : TransitionOverride()
-}

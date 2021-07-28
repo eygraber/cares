@@ -19,7 +19,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
 
   abstract val args: ByteArray?
 
-  abstract val transitionOverride: TransitionOverride?
+  abstract val transitionOverride: RenderWindowTransitionOverride?
 
   @Immutable
   data class Attached<FactoryKey>(
@@ -31,7 +31,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     override val args: ByteArray?,
     val node: RenderNode<*, *>,
     val isBeingRestoredFromBackstack: Boolean,
-    override val transitionOverride: TransitionOverride? = null
+    override val transitionOverride: RenderWindowTransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>()
 
   @Immutable
@@ -44,7 +44,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     val node: RenderNode<*, *>,
     val isRemoving: Boolean,
     val isBeingSentToBackstack: Boolean,
-    override val transitionOverride: TransitionOverride? = null
+    override val transitionOverride: RenderWindowTransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation = false
   }
@@ -57,7 +57,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     override val isHidden: Boolean,
     override val args: ByteArray?,
     val savedState: ByteArray?,
-    override val transitionOverride: TransitionOverride? = null
+    override val transitionOverride: RenderWindowTransitionOverride? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation: Boolean = false
   }
