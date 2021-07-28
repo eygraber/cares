@@ -148,9 +148,10 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
           isHidden = mutation.isHidden,
           args = mutation.args,
           node = renderNodeFactoryFactory(mutation.key).create(
-            args = mutation.args,
-            savedState = null,
-            serializer = stateSerializer
+            args = mutation.args?.let { args ->
+              RenderNode.Factory.SavedArgs(args, stateSerializer)
+            },
+            savedState = null
           ),
           isBeingRestoredFromBackstack = false,
           transitionOverride = transitionOverrider?.invoke(mutation.key, mutation.id)
@@ -186,9 +187,12 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             isHidden = mutation.isHidden ?: holder.isHidden,
             args = holder.args,
             node = renderNodeFactoryFactory(mutation.key).create(
-              args = holder.args,
-              savedState = holder.savedState,
-              serializer = stateSerializer
+              args = holder.args?.let { args ->
+                RenderNode.Factory.SavedArgs(args, stateSerializer)
+              },
+              savedState = holder.savedState?.let { savedState ->
+                RenderNode.Factory.SavedState(savedState, stateSerializer)
+              }
             ),
             isBeingRestoredFromBackstack = mutation.isBeingRestoredFromBackstack,
             transitionOverride = transitionOverride

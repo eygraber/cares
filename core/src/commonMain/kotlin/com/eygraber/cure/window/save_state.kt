@@ -77,9 +77,12 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
       isHidden = isHidden,
       args = args,
       node = renderNodeFactoryFactory(key).create(
-        args = args,
-        savedState = savedState,
-        serializer = stateSerializer
+        args = args?.let { args ->
+          RenderNode.Factory.SavedArgs(args, stateSerializer)
+        },
+        savedState = savedState?.let { savedState ->
+          RenderNode.Factory.SavedState(savedState, stateSerializer)
+        }
       ),
       isBeingRestoredFromBackstack = false
     )

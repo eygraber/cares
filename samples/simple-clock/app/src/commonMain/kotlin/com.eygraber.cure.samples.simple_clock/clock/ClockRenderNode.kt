@@ -1,7 +1,6 @@
 package com.eygraber.cure.samples.simple_clock.clock
 
 import com.eygraber.cure.RenderNode
-import com.eygraber.cure.StateSerializer
 
 class ClockRenderNode(
   initialState: ClockState
@@ -11,9 +10,8 @@ class ClockRenderNode(
 
   companion object Factory : RenderNode.Factory<ClockState, ClockEvent> {
     override fun create(
-      args: ByteArray?,
-      savedState: ByteArray?,
-      serializer: StateSerializer
+      args: RenderNode.Factory.SavedArgs?,
+      savedState: RenderNode.Factory.SavedState?
     ) = ClockRenderNode(
       initialState = ClockState.default()
     )

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 public abstract class RenderNode<State, Event>(
   initialState: State
@@ -51,9 +52,24 @@ public abstract class RenderNode<State, Event>(
 
   public interface Factory<State, Event> {
     public fun create(
-      args: ByteArray?,
-      savedState: ByteArray?,
-      serializer: StateSerializer
+      args: SavedArgs?,
+      savedState: SavedState?
     ): RenderNode<State, Event>
+
+    public class SavedArgs(
+      @PublishedApi internal val data: ByteArray,
+      @PublishedApi internal val serializer: StateSerializer
+    ) {
+      public inline fun <reified Arg> args(): Arg =
+        serializer.deserialize(data, serializer())
+    }
+
+    public class SavedState(
+      @PublishedApi internal val data: ByteArray,
+      @PublishedApi internal val serializer: StateSerializer
+    ) {
+      public inline fun <reified Arg> state(): Arg =
+        serializer.deserialize(data, serializer())
+    }
   }
 }
