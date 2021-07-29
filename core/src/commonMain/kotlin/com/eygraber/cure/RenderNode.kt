@@ -50,26 +50,19 @@ public abstract class RenderNode<State, Event>(
 
   protected open fun createEventFlow(): MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
 
-  public interface Factory<State, Event> {
-    public fun create(
-      args: SavedArgs?,
-      savedState: SavedState?
-    ): RenderNode<State, Event>
+  public class SavedArgs(
+    @PublishedApi internal val data: ByteArray,
+    @PublishedApi internal val serializer: StateSerializer
+  ) {
+    public inline fun <reified Arg> args(): Arg =
+      serializer.deserialize(data, serializer())
+  }
 
-    public class SavedArgs(
-      @PublishedApi internal val data: ByteArray,
-      @PublishedApi internal val serializer: StateSerializer
-    ) {
-      public inline fun <reified Arg> args(): Arg =
-        serializer.deserialize(data, serializer())
-    }
-
-    public class SavedState(
-      @PublishedApi internal val data: ByteArray,
-      @PublishedApi internal val serializer: StateSerializer
-    ) {
-      public inline fun <reified Arg> state(): Arg =
-        serializer.deserialize(data, serializer())
-    }
+  public class SavedState(
+    @PublishedApi internal val data: ByteArray,
+    @PublishedApi internal val serializer: StateSerializer
+  ) {
+    public inline fun <reified Arg> state(): Arg =
+      serializer.deserialize(data, serializer())
   }
 }

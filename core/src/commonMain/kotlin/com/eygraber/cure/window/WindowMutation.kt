@@ -114,7 +114,7 @@ internal sealed class WindowMutation<FactoryKey> {
 internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
   mutations: List<WindowMutation<FactoryKey>>,
   stateSerializer: StateSerializer,
-  renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>,
+  renderNodeFactory: RenderNodeFactory<FactoryKey>,
   transitionOverrider: ((FactoryKey, String) -> RenderWindowTransitionOverride?)? = null
 ): List<RenderNodeHolder<FactoryKey>> {
   val window = toMutableList()
@@ -147,11 +147,14 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
           wasContentPreviouslyVisible = false,
           isHidden = mutation.isHidden,
           args = mutation.args,
-          node = renderNodeFactoryFactory(mutation.key).create(
-            args = mutation.args?.let { args ->
-              RenderNode.Factory.SavedArgs(args, stateSerializer)
-            },
-            savedState = null
+          node = renderNodeFactory(
+            RenderNodeArgs(
+              key = mutation.key,
+              args = mutation.args?.let { args ->
+                RenderNode.SavedArgs(args, stateSerializer)
+              },
+              savedState = null
+            )
           ),
           isBeingRestoredFromBackstack = false,
           transitionOverride = transitionOverrider?.invoke(mutation.key, mutation.id)
@@ -186,13 +189,16 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             wasContentPreviouslyVisible = false,
             isHidden = mutation.isHidden ?: holder.isHidden,
             args = holder.args,
-            node = renderNodeFactoryFactory(mutation.key).create(
-              args = holder.args?.let { args ->
-                RenderNode.Factory.SavedArgs(args, stateSerializer)
-              },
-              savedState = holder.savedState?.let { savedState ->
-                RenderNode.Factory.SavedState(savedState, stateSerializer)
-              }
+            node = renderNodeFactory(
+              RenderNodeArgs(
+                key = mutation.key,
+                args = holder.args?.let { args ->
+                  RenderNode.SavedArgs(args, stateSerializer)
+                },
+                savedState = holder.savedState?.let { savedState ->
+                  RenderNode.SavedState(savedState, stateSerializer)
+                }
+              )
             ),
             isBeingRestoredFromBackstack = mutation.isBeingRestoredFromBackstack,
             transitionOverride = transitionOverride

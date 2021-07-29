@@ -18,12 +18,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
+public data class RenderNodeArgs<FactoryKey>(
+  val key: FactoryKey,
+  val args: RenderNode.SavedArgs?,
+  val savedState: RenderNode.SavedState?
+)
+
+public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *>
+
 @ExperimentalAnimationApi
 public class RenderWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
   private val stateSerializer: StateSerializer,
   restoreState: ByteArray? = null,
-  private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
+  private val renderNodeFactory: RenderNodeFactory<FactoryKey>
 ) {
   @Composable
   public fun render() {
@@ -42,7 +50,7 @@ public class RenderWindow<FactoryKey>(
       nodes.value = nodes.value.applyMutations(
         WindowMutationBuilder<FactoryKey>(stateSerializer).apply(builder).build(),
         stateSerializer,
-        renderNodeFactoryFactory,
+        renderNodeFactory,
         transitionOverride
       )
     }
@@ -145,7 +153,7 @@ public class RenderWindow<FactoryKey>(
         )
       ),
       stateSerializer,
-      renderNodeFactoryFactory,
+      renderNodeFactory,
       holder.transitionOverride?.let { { _: FactoryKey, _: String -> it } }
     )
   }
@@ -159,7 +167,7 @@ public class RenderWindow<FactoryKey>(
       backstack = BackstackImpl(
         nodes,
         stateSerializer,
-        renderNodeFactoryFactory
+        renderNodeFactory
       )
     }
     else {
@@ -171,10 +179,10 @@ public class RenderWindow<FactoryKey>(
       backstack = BackstackImpl(
         nodes,
         stateSerializer,
-        renderNodeFactoryFactory,
+        renderNodeFactory,
         state.backstack
       )
-      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactoryFactory)
+      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactory)
     }
   }
 

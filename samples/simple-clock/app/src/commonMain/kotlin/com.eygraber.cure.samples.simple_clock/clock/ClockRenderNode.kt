@@ -7,13 +7,4 @@ class ClockRenderNode(
 ) : RenderNode<ClockState, ClockEvent>(initialState) {
   override val compositor = ClockCompositor()
   override val renderer = ClockRenderer()
-
-  companion object Factory : RenderNode.Factory<ClockState, ClockEvent> {
-    override fun create(
-      args: RenderNode.Factory.SavedArgs?,
-      savedState: RenderNode.Factory.SavedState?
-    ) = ClockRenderNode(
-      initialState = ClockState.default()
-    )
-  }
 }

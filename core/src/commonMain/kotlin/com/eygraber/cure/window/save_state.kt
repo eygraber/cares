@@ -12,8 +12,8 @@ internal class RenderWindowSaveState<FactoryKey>(
 ) {
   @ExperimentalAnimationApi fun toRenderNodeHolders(
     stateSerializer: StateSerializer,
-    renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
-  ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactoryFactory) }
+    renderNodeFactory: RenderNodeFactory<FactoryKey>
+  ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactory) }
 }
 
 @ExperimentalAnimationApi
@@ -67,7 +67,7 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
 ) {
   @ExperimentalAnimationApi fun toRenderNodeHolder(
     stateSerializer: StateSerializer,
-    renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
+    renderNodeFactory: RenderNodeFactory<FactoryKey>
   ) = if(isAttached) {
     RenderNodeHolder.Attached(
       key = key,
@@ -76,13 +76,16 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      node = renderNodeFactoryFactory(key).create(
-        args = args?.let { args ->
-          RenderNode.Factory.SavedArgs(args, stateSerializer)
-        },
-        savedState = savedState?.let { savedState ->
-          RenderNode.Factory.SavedState(savedState, stateSerializer)
-        }
+      node = renderNodeFactory(
+        RenderNodeArgs(
+          key = key,
+          args = args?.let { args ->
+            RenderNode.SavedArgs(args, stateSerializer)
+          },
+          savedState = savedState?.let { savedState ->
+            RenderNode.SavedState(savedState, stateSerializer)
+          }
+        )
       ),
       isBeingRestoredFromBackstack = false
     )
