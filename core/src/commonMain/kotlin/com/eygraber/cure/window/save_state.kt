@@ -1,7 +1,5 @@
 package com.eygraber.cure.window
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
 import kotlinx.serialization.Serializable
 
@@ -10,13 +8,12 @@ internal class RenderWindowSaveState<FactoryKey>(
   val nodes: List<RenderNodeHolderSaveState<FactoryKey>>,
   val backstack: BackstackSaveState<FactoryKey>
 ) {
-  @ExperimentalAnimationApi fun toRenderNodeHolders(
+  fun toRenderNodeHolders(
     stateSerializer: StateSerializer,
     renderNodeFactory: RenderNodeFactory<FactoryKey>
   ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactory) }
 }
 
-@ExperimentalAnimationApi
 internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
   stateSerializer: StateSerializer
 ) = when(this) {
@@ -65,7 +62,7 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
   val savedState: ByteArray?,
   val isAttached: Boolean
 ) {
-  @ExperimentalAnimationApi fun toRenderNodeHolder(
+  fun toRenderNodeHolder(
     stateSerializer: StateSerializer,
     renderNodeFactory: RenderNodeFactory<FactoryKey>
   ) = if(isAttached) {
@@ -80,10 +77,10 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
         RenderNodeArgs(
           key = key,
           args = args?.let { args ->
-            RenderNode.SavedArgs(args, stateSerializer)
+            RenderWindow.SavedArgs(args, stateSerializer)
           },
           savedState = savedState?.let { savedState ->
-            RenderNode.SavedState(savedState, stateSerializer)
+            RenderWindow.SavedState(savedState, stateSerializer)
           }
         )
       ),

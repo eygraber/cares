@@ -20,13 +20,12 @@ import kotlinx.serialization.serializer
 
 public data class RenderNodeArgs<FactoryKey>(
   val key: FactoryKey,
-  val args: RenderNode.SavedArgs?,
-  val savedState: RenderNode.SavedState?
+  val args: RenderWindow.SavedArgs?,
+  val savedState: RenderWindow.SavedState?
 )
 
 public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *>
 
-@ExperimentalAnimationApi
 public class RenderWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
   private val stateSerializer: StateSerializer,
@@ -125,6 +124,7 @@ public class RenderWindow<FactoryKey>(
       MutableTransitionState(isContentInitiallyVisible)
     }.apply { targetState = isContentVisible }
 
+    @OptIn(ExperimentalAnimationApi::class)
     AnimatedVisibility(
       visibleState = visibleState,
       enter = enterTransition,
@@ -229,9 +229,24 @@ public class RenderWindow<FactoryKey>(
       id: String = key.toString()
     )
   }
+
+  public class SavedArgs(
+    @PublishedApi internal val data: ByteArray,
+    @PublishedApi internal val serializer: StateSerializer
+  ) {
+    public inline fun <reified Arg> args(): Arg =
+      serializer.deserialize(data, serializer())
+  }
+
+  public class SavedState(
+    @PublishedApi internal val data: ByteArray,
+    @PublishedApi internal val serializer: StateSerializer
+  ) {
+    public inline fun <reified Arg> state(): Arg =
+      serializer.deserialize(data, serializer())
+  }
 }
 
-@ExperimentalAnimationApi
 public inline fun <reified T, FactoryKey> RenderWindow.UpdateBuilder<FactoryKey>.add(
   key: FactoryKey,
   args: T,

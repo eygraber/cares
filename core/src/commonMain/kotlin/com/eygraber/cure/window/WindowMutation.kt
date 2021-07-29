@@ -1,7 +1,5 @@
 package com.eygraber.cure.window
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
 
 internal sealed class WindowMutation<FactoryKey> {
@@ -110,7 +108,6 @@ internal sealed class WindowMutation<FactoryKey> {
   }
 }
 
-@ExperimentalAnimationApi
 internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
   mutations: List<WindowMutation<FactoryKey>>,
   stateSerializer: StateSerializer,
@@ -151,7 +148,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             RenderNodeArgs(
               key = mutation.key,
               args = mutation.args?.let { args ->
-                RenderNode.SavedArgs(args, stateSerializer)
+                RenderWindow.SavedArgs(args, stateSerializer)
               },
               savedState = null
             )
@@ -193,10 +190,10 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               RenderNodeArgs(
                 key = mutation.key,
                 args = holder.args?.let { args ->
-                  RenderNode.SavedArgs(args, stateSerializer)
+                  RenderWindow.SavedArgs(args, stateSerializer)
                 },
                 savedState = holder.savedState?.let { savedState ->
-                  RenderNode.SavedState(savedState, stateSerializer)
+                  RenderWindow.SavedState(savedState, stateSerializer)
                 }
               )
             ),

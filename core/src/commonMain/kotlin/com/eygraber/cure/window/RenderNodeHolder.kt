@@ -1,11 +1,9 @@
 package com.eygraber.cure.window
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Immutable
 import com.eygraber.cure.RenderNode
 
 @Suppress("ArrayInDataClass")
-@ExperimentalAnimationApi
 @Immutable
 internal sealed class RenderNodeHolder<FactoryKey> {
   abstract val key: FactoryKey

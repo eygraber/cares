@@ -8,7 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 public data class RenderWindowTransitions(
   val enter: EnterTransition,
   val exit: ExitTransition,
@@ -45,7 +45,7 @@ public data class RenderWindowTransitions(
 public sealed interface RenderWindowTransitionOverride {
   public object NoTransition : RenderWindowTransitionOverride
 
-  @ExperimentalAnimationApi
+  @OptIn(ExperimentalAnimationApi::class)
   public data class Transitions(
     val enter: EnterTransition,
     val exit: ExitTransition

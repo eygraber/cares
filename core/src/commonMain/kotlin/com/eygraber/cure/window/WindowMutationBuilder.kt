@@ -1,10 +1,8 @@
 package com.eygraber.cure.window
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import com.eygraber.cure.StateSerializer
 import kotlinx.serialization.KSerializer
 
-@ExperimentalAnimationApi
 internal class WindowMutationBuilder<FactoryKey>(
   private val stateSerializer: StateSerializer
 ) : RenderWindow.UpdateBuilder<FactoryKey> {

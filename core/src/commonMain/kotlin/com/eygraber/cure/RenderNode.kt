@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.serializer
 
 public abstract class RenderNode<State, Event>(
   initialState: State
@@ -47,20 +46,4 @@ public abstract class RenderNode<State, Event>(
     }
 
   protected open fun createEventFlow(): MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
-
-  public class SavedArgs(
-    @PublishedApi internal val data: ByteArray,
-    @PublishedApi internal val serializer: StateSerializer
-  ) {
-    public inline fun <reified Arg> args(): Arg =
-      serializer.deserialize(data, serializer())
-  }
-
-  public class SavedState(
-    @PublishedApi internal val data: ByteArray,
-    @PublishedApi internal val serializer: StateSerializer
-  ) {
-    public inline fun <reified Arg> state(): Arg =
-      serializer.deserialize(data, serializer())
-  }
 }
