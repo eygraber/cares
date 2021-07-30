@@ -1,4 +1,4 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -9,7 +9,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 
 @OptIn(ExperimentalAnimationApi::class)
-public data class RenderWindowTransitions(
+public data class NavWindowTransitions(
   val enter: EnterTransition,
   val exit: ExitTransition,
   val restoreFromBackstack: EnterTransition = enter,
@@ -29,7 +29,7 @@ public data class RenderWindowTransitions(
   }
 
   public companion object {
-    public val Default: RenderWindowTransitions = RenderWindowTransitions(
+    public val Default: NavWindowTransitions = NavWindowTransitions(
       enter = slideInHorizontally(
         initialOffsetX = { it * 2 }
       ),
@@ -42,12 +42,12 @@ public data class RenderWindowTransitions(
   }
 }
 
-public sealed interface RenderWindowTransition {
-  public object NoTransition : RenderWindowTransition
+public sealed interface NavWindowTransition {
+  public object NoTransition : NavWindowTransition
 
   @OptIn(ExperimentalAnimationApi::class)
   public data class Transitions(
     val enter: EnterTransition,
     val exit: ExitTransition
-  ) : RenderWindowTransition
+  ) : NavWindowTransition
 }

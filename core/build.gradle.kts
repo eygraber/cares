@@ -21,12 +21,9 @@ kotlin {
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
 
-        api("org.jetbrains.kotlinx:atomicfu:0.16.2")
+        api("org.jetbrains.kotlinx:atomicfu:$atomicFuVersion")
 
-        api(compose.runtime)
-        api(compose.foundation)
-        api(compose.material)
-        api(compose.materialIconsExtended)
+        implementation(compose.runtime)
       }
     }
 

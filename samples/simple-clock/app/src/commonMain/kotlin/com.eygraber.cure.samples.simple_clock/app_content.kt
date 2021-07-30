@@ -2,12 +2,12 @@ package com.eygraber.cure.samples.simple_clock
 
 import androidx.compose.runtime.Composable
 import com.eygraber.cure.JsonStateSerializer
+import com.eygraber.cure.nav.NavWindow
 import com.eygraber.cure.samples.simple_clock.clock.ClockRenderNode
 import com.eygraber.cure.samples.simple_clock.clock.ClockState
-import com.eygraber.cure.window.RenderWindow
 
-val renderWindow =
-  RenderWindow(
+val navWindow =
+  NavWindow(
     factoryKeySerializer = SimpleClockFactoryKey.serializer(),
     stateSerializer = JsonStateSerializer()
   ) { (key) ->
@@ -18,5 +18,5 @@ val renderWindow =
 
 @Composable
 fun AppContent() {
-  renderWindow.render()
+  navWindow.render()
 }

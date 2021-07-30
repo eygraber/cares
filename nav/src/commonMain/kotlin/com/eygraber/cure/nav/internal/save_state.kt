@@ -1,10 +1,14 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav.internal
 
 import com.eygraber.cure.StateSerializer
+import com.eygraber.cure.nav.BackstackEntry
+import com.eygraber.cure.nav.NavWindow
+import com.eygraber.cure.nav.RenderNodeArgs
+import com.eygraber.cure.nav.RenderNodeFactory
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal class RenderWindowSaveState<FactoryKey>(
+internal class NavWindowSaveState<FactoryKey>(
   val nodes: List<RenderNodeHolderSaveState<FactoryKey>>,
   val backstack: BackstackSaveState<FactoryKey>
 ) {
@@ -77,10 +81,10 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
         RenderNodeArgs(
           key = key,
           args = args?.let { args ->
-            RenderWindow.SavedArgs(args, stateSerializer)
+            NavWindow.SavedArgs(args, stateSerializer)
           },
           savedState = savedState?.let { savedState ->
-            RenderWindow.SavedState(savedState, stateSerializer)
+            NavWindow.SavedState(savedState, stateSerializer)
           }
         )
       ),

@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
 
-./gradlew :core:clean :core:build :core:publish $@ --no-daemon --no-parallel
+./gradlew :core:clean :core:build :core:publish $@ --no-daemon --no-parallel && \
+./gradlew :nav:clean :nav:build :nav:publish $@ --no-daemon --no-parallel
