@@ -34,18 +34,16 @@ public abstract class RenderNode<State, Event>(
     renderer.render(data)
   }
 
-  protected open val serializer: KSerializer<State>? = null
+  protected abstract val serializer: KSerializer<State>
 
   /**
    * Serializes the value from [currentState] to a [ByteArray] using [stateSerializer].
    *
-   * Returns null if either the value from [currentState] or [serializer] is null.
+   * Returns null if the value from [currentState] is null.
    */
   public fun serializeCurrentState(stateSerializer: StateSerializer): ByteArray? =
     currentState.value?.let { currentState ->
-      serializer?.let { serializer ->
-        stateSerializer.serialize(currentState, serializer)
-      }
+      stateSerializer.serialize(currentState, serializer)
     }
 
   protected open fun createEventFlow(): MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
