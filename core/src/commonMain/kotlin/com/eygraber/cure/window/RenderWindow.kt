@@ -42,7 +42,7 @@ public class RenderWindow<FactoryKey>(
   }
 
   public fun update(
-    transitionOverride: ((FactoryKey, String) -> RenderWindowTransitionOverride?)? = null,
+    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null,
     @UpdateBuilderDsl builder: UpdateBuilder<FactoryKey>.() -> Unit
   ) {
     lock.withLock {
@@ -50,7 +50,7 @@ public class RenderWindow<FactoryKey>(
         WindowMutationBuilder<FactoryKey>(stateSerializer).apply(builder).build(),
         stateSerializer,
         renderNodeFactory,
-        transitionOverride
+        transition
       )
     }
   }
@@ -97,15 +97,15 @@ public class RenderWindow<FactoryKey>(
       else -> null
     }
 
-    val (enterTransition, exitTransition) = when(val override = holder.transitionOverride) {
+    val (enterTransition, exitTransition) = when(val override = holder.transition) {
       null -> RenderWindowTransitions.Default.getEnterAndExitTransitions(
         isShowOrHide = holder.isShowOrHideMutation,
         isBackstackOp = isBackstackOp
       )
 
-      RenderWindowTransitionOverride.NoTransition -> null
+      RenderWindowTransition.NoTransition -> null
 
-      is RenderWindowTransitionOverride.Transitions -> override.enter to override.exit
+      is RenderWindowTransition.Transitions -> override.enter to override.exit
     } ?: run {
       if(holder is RenderNodeHolder.Disappearing<FactoryKey>) {
         applyDisappearingMutation(holder)
@@ -154,7 +154,7 @@ public class RenderWindow<FactoryKey>(
       ),
       stateSerializer,
       renderNodeFactory,
-      holder.transitionOverride?.let { { _: FactoryKey, _: String -> it } }
+      holder.transition?.let { { _: FactoryKey, _: String -> it } }
     )
   }
 

@@ -112,19 +112,19 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
   mutations: List<WindowMutation<FactoryKey>>,
   stateSerializer: StateSerializer,
   renderNodeFactory: RenderNodeFactory<FactoryKey>,
-  transitionOverrider: ((FactoryKey, String) -> RenderWindowTransitionOverride?)? = null
+  transitionr: ((FactoryKey, String) -> RenderWindowTransition?)? = null
 ): List<RenderNodeHolder<FactoryKey>> {
   val window = toMutableList()
 
   fun WindowMutation<FactoryKey>.applyMutation(
-    mutate: (RenderNodeHolder<FactoryKey>, RenderWindowTransitionOverride?) -> RenderNodeHolder<FactoryKey>?
+    mutate: (RenderNodeHolder<FactoryKey>, RenderWindowTransition?) -> RenderNodeHolder<FactoryKey>?
   ) {
     window
       .indexOfLast { holder -> holder.key == key && holder.id == id }
       .takeIf { it > -1 }
       ?.let { index ->
         val holder = window[index]
-        val newHolder = mutate(holder, transitionOverrider?.invoke(holder.key, holder.id))
+        val newHolder = mutate(holder, transitionr?.invoke(holder.key, holder.id))
         if(newHolder == null) {
           window.removeAt(index)
         }
@@ -154,11 +154,11 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             )
           ),
           isBeingRestoredFromBackstack = false,
-          transitionOverride = transitionOverrider?.invoke(mutation.key, mutation.id)
+          transition = transitionr?.invoke(mutation.key, mutation.id)
         )
       )
 
-      is WindowMutation.Remove -> mutation.applyMutation { holder, transitionOverride ->
+      is WindowMutation.Remove -> mutation.applyMutation { holder, transition ->
         if(holder is RenderNodeHolder.Attached<*>) {
           RenderNodeHolder.Disappearing(
             key = mutation.key,
@@ -169,7 +169,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             node = holder.node,
             isRemoving = true,
             isBeingSentToBackstack = false,
-            transitionOverride = transitionOverride
+            transition = transition
           )
         }
         else {
@@ -177,7 +177,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
         }
       }
 
-      is WindowMutation.Attach -> mutation.applyMutation { holder, transitionOverride ->
+      is WindowMutation.Attach -> mutation.applyMutation { holder, transition ->
         if(holder is RenderNodeHolder.Detached<*>) {
           RenderNodeHolder.Attached(
             key = mutation.key,
@@ -198,7 +198,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               )
             ),
             isBeingRestoredFromBackstack = mutation.isBeingRestoredFromBackstack,
-            transitionOverride = transitionOverride
+            transition = transition
           )
         }
         else {
@@ -206,7 +206,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
         }
       }
 
-      is WindowMutation.Detach -> mutation.applyMutation { holder, transitionOverride ->
+      is WindowMutation.Detach -> mutation.applyMutation { holder, transition ->
         if(holder is RenderNodeHolder.Attached<*>) {
           RenderNodeHolder.Disappearing(
             key = mutation.key,
@@ -217,7 +217,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             node = holder.node,
             isRemoving = false,
             isBeingSentToBackstack = mutation.isBeingSentToBackstack,
-            transitionOverride = transitionOverride
+            transition = transition
           )
         }
         else {
@@ -225,7 +225,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
         }
       }
 
-      is WindowMutation.Show -> mutation.applyMutation { holder, transitionOverride ->
+      is WindowMutation.Show -> mutation.applyMutation { holder, transition ->
         if(holder is RenderNodeHolder.Attached<*> && holder.isHidden) {
           RenderNodeHolder.Attached(
             key = mutation.key,
@@ -236,7 +236,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             args = holder.args,
             node = holder.node,
             isBeingRestoredFromBackstack = false,
-            transitionOverride = transitionOverride
+            transition = transition
           )
         }
         else {
@@ -244,7 +244,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
         }
       }
 
-      is WindowMutation.Hide -> mutation.applyMutation { holder, transitionOverride ->
+      is WindowMutation.Hide -> mutation.applyMutation { holder, transition ->
         if(holder is RenderNodeHolder.Attached<*> && !holder.isHidden) {
           RenderNodeHolder.Attached(
             key = mutation.key,
@@ -255,7 +255,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             args = holder.args,
             node = holder.node,
             isBeingRestoredFromBackstack = false,
-            transitionOverride = transitionOverride
+            transition = transition
           )
         }
         else {
@@ -263,7 +263,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
         }
       }
 
-      is WindowMutation.Disappearing -> mutation.applyMutation { holder, transitionOverride ->
+      is WindowMutation.Disappearing -> mutation.applyMutation { holder, transition ->
         if(holder is RenderNodeHolder.Disappearing<*>) {
           when {
             holder.isRemoving -> null
@@ -275,7 +275,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               isHidden = holder.isHidden,
               args = holder.args,
               savedState = holder.node.serializeCurrentState(stateSerializer),
-              transitionOverride = transitionOverride
+              transition = transition
             )
           }
         }

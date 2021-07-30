@@ -42,12 +42,12 @@ public data class RenderWindowTransitions(
   }
 }
 
-public sealed interface RenderWindowTransitionOverride {
-  public object NoTransition : RenderWindowTransitionOverride
+public sealed interface RenderWindowTransition {
+  public object NoTransition : RenderWindowTransition
 
   @OptIn(ExperimentalAnimationApi::class)
   public data class Transitions(
     val enter: EnterTransition,
     val exit: ExitTransition
-  ) : RenderWindowTransitionOverride
+  ) : RenderWindowTransition
 }
