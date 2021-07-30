@@ -1,6 +1,12 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav
 
 import com.eygraber.cure.StateSerializer
+import com.eygraber.cure.nav.internal.BackstackEntrySaveState
+import com.eygraber.cure.nav.internal.BackstackSaveState
+import com.eygraber.cure.nav.internal.RenderNodeHolder
+import com.eygraber.cure.nav.internal.WindowMutation
+import com.eygraber.cure.nav.internal.WindowMutationBuilder
+import com.eygraber.cure.nav.internal.applyMutations
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.KSerializer
@@ -13,8 +19,8 @@ public interface Backstack<FactoryKey> {
 
   public fun update(
     backstackEntryId: String,
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null,
-    @BackstackDsl builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
+    transition: ((FactoryKey, String) -> NavWindowTransition?)? = null,
+    @BackstackDsl builder: NavWindow.UpdateBuilder<FactoryKey>.() -> Unit
   )
 
   public fun isEntryInBackstack(backstackEntryId: String): Boolean
@@ -22,13 +28,13 @@ public interface Backstack<FactoryKey> {
   public fun isEntryAtTopOfBackstack(backstackEntryId: String): Boolean
 
   public fun clearBackstack(
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null
+    transition: ((FactoryKey, String) -> NavWindowTransition?)? = null
   ): Boolean
 
   public fun popBackstack(
     untilBackstackEntryId: String? = null,
     inclusive: Boolean = true,
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null
+    transition: ((FactoryKey, String) -> NavWindowTransition?)? = null
   ): Boolean
 }
 
@@ -44,8 +50,8 @@ internal class BackstackImpl<FactoryKey>(
 
   override fun update(
     backstackEntryId: String,
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)?,
-    builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
+    transition: ((FactoryKey, String) -> NavWindowTransition?)?,
+    builder: NavWindow.UpdateBuilder<FactoryKey>.() -> Unit
   ) {
     val (mutations, backstackMutations) = WindowMutationBackstackBuilder(
       WindowMutationBuilder<FactoryKey>(stateSerializer)
@@ -72,7 +78,7 @@ internal class BackstackImpl<FactoryKey>(
   override fun isEntryAtTopOfBackstack(backstackEntryId: String) =
     stack.value.lastOrNull()?.id == backstackEntryId
 
-  override fun clearBackstack(transition: ((FactoryKey, String) -> RenderWindowTransition?)?): Boolean {
+  override fun clearBackstack(transition: ((FactoryKey, String) -> NavWindowTransition?)?): Boolean {
     val originalSize = size
 
     while(size > 0) {
@@ -87,7 +93,7 @@ internal class BackstackImpl<FactoryKey>(
   override fun popBackstack(
     untilBackstackEntryId: String?,
     inclusive: Boolean,
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)?
+    transition: ((FactoryKey, String) -> NavWindowTransition?)?
   ): Boolean {
     val originalSize = size
 
@@ -109,7 +115,7 @@ internal class BackstackImpl<FactoryKey>(
   }
 
   private fun tryToActuallyPopBackstack(
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null,
+    transition: ((FactoryKey, String) -> NavWindowTransition?)? = null,
     popPredicate: (BackstackEntry<FactoryKey>) -> Boolean
   ) = when(val peek = stack.value.lastOrNull()) {
     null -> false
@@ -139,8 +145,8 @@ internal class BackstackImpl<FactoryKey>(
 
 public fun <FactoryKey> Backstack<FactoryKey>.updateWithBackstack(
   backstackEntryId: FactoryKey,
-  transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null,
-  builder: RenderWindow.UpdateBuilder<FactoryKey>.() -> Unit
+  transition: ((FactoryKey, String) -> NavWindowTransition?)? = null,
+  builder: NavWindow.UpdateBuilder<FactoryKey>.() -> Unit
 ) {
   update(backstackEntryId.toString(), transition, builder)
 }
@@ -156,7 +162,7 @@ public fun <FactoryKey> Backstack<FactoryKey>.isEntryAtTopOfBackstack(
 public fun <FactoryKey> Backstack<FactoryKey>.popBackstack(
   untilBackstackEntryId: FactoryKey? = null,
   inclusive: Boolean = true,
-  transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null
+  transition: ((FactoryKey, String) -> NavWindowTransition?)? = null
 ): Boolean = popBackstack(untilBackstackEntryId.toString(), inclusive, transition)
 
 internal data class BackstackEntry<FactoryKey>(
@@ -171,7 +177,7 @@ internal data class BackstackEntry<FactoryKey>(
 
 internal class WindowMutationBackstackBuilder<FactoryKey>(
   private val builder: WindowMutationBuilder<FactoryKey>
-) : RenderWindow.UpdateBuilder<FactoryKey> {
+) : NavWindow.UpdateBuilder<FactoryKey> {
   private val backstackMutations = mutableListOf<WindowMutation<FactoryKey>>()
 
   override fun add(key: FactoryKey, isAttached: Boolean, isHidden: Boolean, id: String) {

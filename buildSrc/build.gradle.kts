@@ -4,6 +4,7 @@ plugins {
 
 apply(from = project.file("versions.gradle"))
 
+val atomicFuVersion = project.findProperty("atomicFuVersion") as String
 val detektVersion = project.findProperty("detektVersion") as String
 val kotlinVersion = project.findProperty("kotlinVersion") as String
 
@@ -20,5 +21,5 @@ dependencies {
   implementation("com.vanniktech:gradle-maven-publish-plugin:0.17.0")
   implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.5.0")
   implementation("org.jetbrains.compose:compose-gradle-plugin:0.5.0-build270")
-  implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.16.2")
+  implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicFuVersion")
 }

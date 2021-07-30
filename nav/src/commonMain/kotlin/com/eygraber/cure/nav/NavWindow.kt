@@ -1,4 +1,4 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -10,6 +10,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
+import com.eygraber.cure.nav.internal.NavWindowSaveState
+import com.eygraber.cure.nav.internal.RenderNodeHolder
+import com.eygraber.cure.nav.internal.WindowMutation
+import com.eygraber.cure.nav.internal.WindowMutationBuilder
+import com.eygraber.cure.nav.internal.applyMutations
+import com.eygraber.cure.nav.internal.toSaveState
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.flow.Flow
@@ -20,13 +26,13 @@ import kotlinx.serialization.serializer
 
 public data class RenderNodeArgs<FactoryKey>(
   val key: FactoryKey,
-  val args: RenderWindow.SavedArgs?,
-  val savedState: RenderWindow.SavedState?
+  val args: NavWindow.SavedArgs?,
+  val savedState: NavWindow.SavedState?
 )
 
 public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *>
 
-public class RenderWindow<FactoryKey>(
+public class NavWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
   private val stateSerializer: StateSerializer,
   restoreState: ByteArray? = null,
@@ -37,12 +43,12 @@ public class RenderWindow<FactoryKey>(
     val nodes by nodes.collectAsState()
 
     for(node in nodes) {
-      RenderWindowNode(node)
+      NavWindowNode(node)
     }
   }
 
   public fun update(
-    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null,
+    transition: ((FactoryKey, String) -> NavWindowTransition?)? = null,
     @UpdateBuilderDsl builder: UpdateBuilder<FactoryKey>.() -> Unit
   ) {
     lock.withLock {
@@ -64,14 +70,14 @@ public class RenderWindow<FactoryKey>(
   }
 
   public fun serialize(): ByteArray = lock.withLock {
-    val data = RenderWindowSaveState(
+    val data = NavWindowSaveState(
       nodes = nodes.value.mapNotNull { nodeHolder ->
         nodeHolder.toSaveState(stateSerializer)
       },
       backstack = backstack.toSaveState()
     )
 
-    return stateSerializer.serialize(data, RenderWindowSaveState.serializer(factoryKeySerializer))
+    return stateSerializer.serialize(data, NavWindowSaveState.serializer(factoryKeySerializer))
   }
 
   public fun contains(key: FactoryKey, id: String = key.toString()): Boolean =
@@ -82,7 +88,7 @@ public class RenderWindow<FactoryKey>(
   public fun updates(): Flow<Unit> = nodes.map {}
 
   @Composable
-  private fun RenderWindowNode(
+  private fun NavWindowNode(
     holder: RenderNodeHolder<FactoryKey>
   ) {
     val isBackstackOp = when(holder) {
@@ -98,14 +104,14 @@ public class RenderWindow<FactoryKey>(
     }
 
     val (enterTransition, exitTransition) = when(val override = holder.transition) {
-      null -> RenderWindowTransitions.Default.getEnterAndExitTransitions(
+      null -> NavWindowTransitions.Default.getEnterAndExitTransitions(
         isShowOrHide = holder.isShowOrHideMutation,
         isBackstackOp = isBackstackOp
       )
 
-      RenderWindowTransition.NoTransition -> null
+      NavWindowTransition.NoTransition -> null
 
-      is RenderWindowTransition.Transitions -> override.enter to override.exit
+      is NavWindowTransition.Transitions -> override.enter to override.exit
     } ?: run {
       if(holder is RenderNodeHolder.Disappearing<FactoryKey>) {
         applyDisappearingMutation(holder)
@@ -173,7 +179,7 @@ public class RenderWindow<FactoryKey>(
     else {
       val state = stateSerializer.deserialize(
         restoreState,
-        RenderWindowSaveState.serializer(factoryKeySerializer)
+        NavWindowSaveState.serializer(factoryKeySerializer)
       )
 
       backstack = BackstackImpl(
@@ -247,7 +253,7 @@ public class RenderWindow<FactoryKey>(
   }
 }
 
-public inline fun <reified T, FactoryKey> RenderWindow.UpdateBuilder<FactoryKey>.add(
+public inline fun <reified T, FactoryKey> NavWindow.UpdateBuilder<FactoryKey>.add(
   key: FactoryKey,
   args: T,
   isAttached: Boolean = true,

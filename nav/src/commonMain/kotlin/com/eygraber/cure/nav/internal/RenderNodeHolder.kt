@@ -1,7 +1,8 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav.internal
 
 import androidx.compose.runtime.Immutable
 import com.eygraber.cure.RenderNode
+import com.eygraber.cure.nav.NavWindowTransition
 
 @Suppress("ArrayInDataClass")
 @Immutable
@@ -17,7 +18,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
 
   abstract val args: ByteArray?
 
-  abstract val transition: RenderWindowTransition?
+  abstract val transition: NavWindowTransition?
 
   @Immutable
   data class Attached<FactoryKey>(
@@ -29,7 +30,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     override val args: ByteArray?,
     val node: RenderNode<*, *>,
     val isBeingRestoredFromBackstack: Boolean,
-    override val transition: RenderWindowTransition? = null
+    override val transition: NavWindowTransition? = null
   ) : RenderNodeHolder<FactoryKey>()
 
   @Immutable
@@ -42,7 +43,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     val node: RenderNode<*, *>,
     val isRemoving: Boolean,
     val isBeingSentToBackstack: Boolean,
-    override val transition: RenderWindowTransition? = null
+    override val transition: NavWindowTransition? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation = false
   }
@@ -55,7 +56,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     override val isHidden: Boolean,
     override val args: ByteArray?,
     val savedState: ByteArray?,
-    override val transition: RenderWindowTransition? = null
+    override val transition: NavWindowTransition? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation: Boolean = false
   }

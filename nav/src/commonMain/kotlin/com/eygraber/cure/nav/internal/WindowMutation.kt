@@ -1,6 +1,10 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav.internal
 
 import com.eygraber.cure.StateSerializer
+import com.eygraber.cure.nav.NavWindow
+import com.eygraber.cure.nav.NavWindowTransition
+import com.eygraber.cure.nav.RenderNodeArgs
+import com.eygraber.cure.nav.RenderNodeFactory
 
 internal sealed class WindowMutation<FactoryKey> {
   abstract val key: FactoryKey
@@ -112,12 +116,12 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
   mutations: List<WindowMutation<FactoryKey>>,
   stateSerializer: StateSerializer,
   renderNodeFactory: RenderNodeFactory<FactoryKey>,
-  transitionr: ((FactoryKey, String) -> RenderWindowTransition?)? = null
+  transitionr: ((FactoryKey, String) -> NavWindowTransition?)? = null
 ): List<RenderNodeHolder<FactoryKey>> {
   val window = toMutableList()
 
   fun WindowMutation<FactoryKey>.applyMutation(
-    mutate: (RenderNodeHolder<FactoryKey>, RenderWindowTransition?) -> RenderNodeHolder<FactoryKey>?
+    mutate: (RenderNodeHolder<FactoryKey>, NavWindowTransition?) -> RenderNodeHolder<FactoryKey>?
   ) {
     window
       .indexOfLast { holder -> holder.key == key && holder.id == id }
@@ -148,7 +152,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             RenderNodeArgs(
               key = mutation.key,
               args = mutation.args?.let { args ->
-                RenderWindow.SavedArgs(args, stateSerializer)
+                NavWindow.SavedArgs(args, stateSerializer)
               },
               savedState = null
             )
@@ -190,10 +194,10 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               RenderNodeArgs(
                 key = mutation.key,
                 args = holder.args?.let { args ->
-                  RenderWindow.SavedArgs(args, stateSerializer)
+                  NavWindow.SavedArgs(args, stateSerializer)
                 },
                 savedState = holder.savedState?.let { savedState ->
-                  RenderWindow.SavedState(savedState, stateSerializer)
+                  NavWindow.SavedState(savedState, stateSerializer)
                 }
               )
             ),

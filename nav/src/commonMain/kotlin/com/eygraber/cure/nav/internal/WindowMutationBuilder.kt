@@ -1,11 +1,12 @@
-package com.eygraber.cure.window
+package com.eygraber.cure.nav.internal
 
 import com.eygraber.cure.StateSerializer
+import com.eygraber.cure.nav.NavWindow
 import kotlinx.serialization.KSerializer
 
 internal class WindowMutationBuilder<FactoryKey>(
   private val stateSerializer: StateSerializer
-) : RenderWindow.UpdateBuilder<FactoryKey> {
+) : NavWindow.UpdateBuilder<FactoryKey> {
   private val mutations = mutableListOf<WindowMutation<FactoryKey>>()
 
   override fun add(key: FactoryKey, isAttached: Boolean, isHidden: Boolean, id: String) {
