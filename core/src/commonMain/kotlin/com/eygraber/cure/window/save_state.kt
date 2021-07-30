@@ -1,7 +1,5 @@
 package com.eygraber.cure.window
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import com.eygraber.cure.RenderNode
 import com.eygraber.cure.StateSerializer
 import kotlinx.serialization.Serializable
 
@@ -10,13 +8,12 @@ internal class RenderWindowSaveState<FactoryKey>(
   val nodes: List<RenderNodeHolderSaveState<FactoryKey>>,
   val backstack: BackstackSaveState<FactoryKey>
 ) {
-  @ExperimentalAnimationApi fun toRenderNodeHolders(
+  fun toRenderNodeHolders(
     stateSerializer: StateSerializer,
-    renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
-  ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactoryFactory) }
+    renderNodeFactory: RenderNodeFactory<FactoryKey>
+  ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactory) }
 }
 
-@ExperimentalAnimationApi
 internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
   stateSerializer: StateSerializer
 ) = when(this) {
@@ -26,7 +23,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
     wasContentPreviouslyVisible = wasContentPreviouslyVisible,
     isHidden = isHidden,
     args = args,
-    savedState = node.serialize(stateSerializer),
+    savedState = node.serializeCurrentState(stateSerializer),
     isAttached = true
   )
 
@@ -39,7 +36,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      savedState = node.serialize(stateSerializer),
+      savedState = node.serializeCurrentState(stateSerializer),
       isAttached = true
     )
   }
@@ -65,9 +62,9 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
   val savedState: ByteArray?,
   val isAttached: Boolean
 ) {
-  @ExperimentalAnimationApi fun toRenderNodeHolder(
+  fun toRenderNodeHolder(
     stateSerializer: StateSerializer,
-    renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
+    renderNodeFactory: RenderNodeFactory<FactoryKey>
   ) = if(isAttached) {
     RenderNodeHolder.Attached(
       key = key,
@@ -76,10 +73,16 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      node = renderNodeFactoryFactory(key).create(
-        args = args,
-        savedState = savedState,
-        serializer = stateSerializer
+      node = renderNodeFactory(
+        RenderNodeArgs(
+          key = key,
+          args = args?.let { args ->
+            RenderWindow.SavedArgs(args, stateSerializer)
+          },
+          savedState = savedState?.let { savedState ->
+            RenderWindow.SavedState(savedState, stateSerializer)
+          }
+        )
       ),
       isBeingRestoredFromBackstack = false
     )

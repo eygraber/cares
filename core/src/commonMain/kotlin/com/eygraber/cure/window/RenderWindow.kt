@@ -1,8 +1,6 @@
 package com.eygraber.cure.window
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.runtime.Composable
@@ -18,13 +16,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
-@ExperimentalAnimationApi
+public data class RenderNodeArgs<FactoryKey>(
+  val key: FactoryKey,
+  val args: RenderWindow.SavedArgs?,
+  val savedState: RenderWindow.SavedState?
+)
+
+public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *>
+
 public class RenderWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
   private val stateSerializer: StateSerializer,
   restoreState: ByteArray? = null,
-  private val renderNodeFactoryFactory: (FactoryKey) -> RenderNode.Factory<*, *>
+  private val renderNodeFactory: RenderNodeFactory<FactoryKey>
 ) {
   @Composable
   public fun render() {
@@ -36,15 +42,15 @@ public class RenderWindow<FactoryKey>(
   }
 
   public fun update(
-    transitionOverride: ((FactoryKey, String) -> TransitionOverride?)? = null,
+    transition: ((FactoryKey, String) -> RenderWindowTransition?)? = null,
     @UpdateBuilderDsl builder: UpdateBuilder<FactoryKey>.() -> Unit
   ) {
     lock.withLock {
       nodes.value = nodes.value.applyMutations(
         WindowMutationBuilder<FactoryKey>(stateSerializer).apply(builder).build(),
         stateSerializer,
-        renderNodeFactoryFactory,
-        transitionOverride
+        renderNodeFactory,
+        transition
       )
     }
   }
@@ -91,19 +97,15 @@ public class RenderWindow<FactoryKey>(
       else -> null
     }
 
-    val (enterTransition, exitTransition) = when(val override = holder.transitionOverride) {
-      null -> when(holder) {
-        is RenderNodeHolder.Attached<*> -> holder.node.transitions
-        is RenderNodeHolder.Disappearing<*> -> holder.node.transitions
-        else -> null
-      }?.getEnterAndExitTransitions(
+    val (enterTransition, exitTransition) = when(val override = holder.transition) {
+      null -> RenderWindowTransitions.Default.getEnterAndExitTransitions(
         isShowOrHide = holder.isShowOrHideMutation,
         isBackstackOp = isBackstackOp
       )
 
-      TransitionOverride.NoTransition -> null
+      RenderWindowTransition.NoTransition -> null
 
-      is TransitionOverride.Transitions -> override.enter to override.exit
+      is RenderWindowTransition.Transitions -> override.enter to override.exit
     } ?: run {
       if(holder is RenderNodeHolder.Disappearing<FactoryKey>) {
         applyDisappearingMutation(holder)
@@ -122,6 +124,7 @@ public class RenderWindow<FactoryKey>(
       MutableTransitionState(isContentInitiallyVisible)
     }.apply { targetState = isContentVisible }
 
+    @OptIn(ExperimentalAnimationApi::class)
     AnimatedVisibility(
       visibleState = visibleState,
       enter = enterTransition,
@@ -150,8 +153,8 @@ public class RenderWindow<FactoryKey>(
         )
       ),
       stateSerializer,
-      renderNodeFactoryFactory,
-      holder.transitionOverride?.let { { _: FactoryKey, _: String -> it } }
+      renderNodeFactory,
+      holder.transition?.let { { _: FactoryKey, _: String -> it } }
     )
   }
 
@@ -164,7 +167,7 @@ public class RenderWindow<FactoryKey>(
       backstack = BackstackImpl(
         nodes,
         stateSerializer,
-        renderNodeFactoryFactory
+        renderNodeFactory
       )
     }
     else {
@@ -176,10 +179,10 @@ public class RenderWindow<FactoryKey>(
       backstack = BackstackImpl(
         nodes,
         stateSerializer,
-        renderNodeFactoryFactory,
+        renderNodeFactory,
         state.backstack
       )
-      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactoryFactory)
+      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactory)
     }
   }
 
@@ -226,17 +229,40 @@ public class RenderWindow<FactoryKey>(
       id: String = key.toString()
     )
   }
+
+  public class SavedArgs(
+    @PublishedApi internal val data: ByteArray,
+    @PublishedApi internal val serializer: StateSerializer
+  ) {
+    public inline fun <reified Arg> args(): Arg =
+      serializer.deserialize(data, serializer())
+  }
+
+  public class SavedState(
+    @PublishedApi internal val data: ByteArray,
+    @PublishedApi internal val serializer: StateSerializer
+  ) {
+    public inline fun <reified Arg> state(): Arg =
+      serializer.deserialize(data, serializer())
+  }
+}
+
+public inline fun <reified T, FactoryKey> RenderWindow.UpdateBuilder<FactoryKey>.add(
+  key: FactoryKey,
+  args: T,
+  isAttached: Boolean = true,
+  isHidden: Boolean = false,
+  id: String = key.toString()
+) {
+  add(
+    key = key,
+    args = args,
+    argsSerializer = serializer(),
+    isAttached = isAttached,
+    isHidden = isHidden,
+    id = id
+  )
 }
 
 @DslMarker
 private annotation class UpdateBuilderDsl
-
-public sealed class TransitionOverride {
-  public object NoTransition : TransitionOverride()
-
-  @ExperimentalAnimationApi
-  public data class Transitions(
-    val enter: EnterTransition,
-    val exit: ExitTransition
-  ) : TransitionOverride()
-}

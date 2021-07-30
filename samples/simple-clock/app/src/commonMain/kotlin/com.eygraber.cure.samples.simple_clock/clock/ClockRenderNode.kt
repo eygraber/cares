@@ -1,7 +1,7 @@
 package com.eygraber.cure.samples.simple_clock.clock
 
 import com.eygraber.cure.RenderNode
-import com.eygraber.cure.StateSerializer
+import kotlinx.serialization.serializer
 
 class ClockRenderNode(
   initialState: ClockState
@@ -9,13 +9,5 @@ class ClockRenderNode(
   override val compositor = ClockCompositor()
   override val renderer = ClockRenderer()
 
-  companion object Factory : RenderNode.Factory<ClockState, ClockEvent> {
-    override fun create(
-      args: ByteArray?,
-      savedState: ByteArray?,
-      serializer: StateSerializer
-    ) = ClockRenderNode(
-      initialState = ClockState.default()
-    )
-  }
+  override val serializer = serializer<ClockState>()
 }
