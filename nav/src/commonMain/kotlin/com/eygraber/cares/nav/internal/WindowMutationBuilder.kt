@@ -1,7 +1,7 @@
-package com.eygraber.cure.nav.internal
+package com.eygraber.cares.nav.internal
 
-import com.eygraber.cure.StateSerializer
-import com.eygraber.cure.nav.NavWindow
+import com.eygraber.cares.StateSerializer
+import com.eygraber.cares.nav.NavWindow
 import kotlinx.serialization.KSerializer
 
 internal class WindowMutationBuilder<FactoryKey>(

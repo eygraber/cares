@@ -1,4 +1,4 @@
-package com.eygraber.cure.nav
+package com.eygraber.cares.nav
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -8,14 +8,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.eygraber.cure.RenderNode
-import com.eygraber.cure.StateSerializer
-import com.eygraber.cure.nav.internal.NavWindowSaveState
-import com.eygraber.cure.nav.internal.RenderNodeHolder
-import com.eygraber.cure.nav.internal.WindowMutation
-import com.eygraber.cure.nav.internal.WindowMutationBuilder
-import com.eygraber.cure.nav.internal.applyMutations
-import com.eygraber.cure.nav.internal.toSaveState
+import com.eygraber.cares.RenderNode
+import com.eygraber.cares.StateSerializer
+import com.eygraber.cares.nav.internal.NavWindowSaveState
+import com.eygraber.cares.nav.internal.RenderNodeHolder
+import com.eygraber.cares.nav.internal.WindowMutation
+import com.eygraber.cares.nav.internal.WindowMutationBuilder
+import com.eygraber.cares.nav.internal.applyMutations
+import com.eygraber.cares.nav.internal.toSaveState
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.flow.Flow

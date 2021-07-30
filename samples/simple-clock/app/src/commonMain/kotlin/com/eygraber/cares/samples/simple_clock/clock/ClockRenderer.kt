@@ -1,4 +1,4 @@
-package com.eygraber.cure.samples.simple_clock.clock
+package com.eygraber.cares.samples.simple_clock.clock
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,8 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.eygraber.cares.Renderer
 import com.eygraber.compose.colorpicker.ColorPicker
-import com.eygraber.cure.Renderer
 
 class ClockRenderer : Renderer<ClockState, ClockEvent>() {
   @Composable

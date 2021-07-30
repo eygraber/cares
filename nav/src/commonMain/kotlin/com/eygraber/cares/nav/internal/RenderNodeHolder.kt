@@ -1,8 +1,8 @@
-package com.eygraber.cure.nav.internal
+package com.eygraber.cares.nav.internal
 
 import androidx.compose.runtime.Immutable
-import com.eygraber.cure.RenderNode
-import com.eygraber.cure.nav.NavWindowTransition
+import com.eygraber.cares.RenderNode
+import com.eygraber.cares.nav.NavWindowTransition
 
 @Suppress("ArrayInDataClass")
 @Immutable

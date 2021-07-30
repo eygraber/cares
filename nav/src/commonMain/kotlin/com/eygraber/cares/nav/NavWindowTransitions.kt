@@ -1,4 +1,4 @@
-package com.eygraber.cure.nav
+package com.eygraber.cares.nav
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition

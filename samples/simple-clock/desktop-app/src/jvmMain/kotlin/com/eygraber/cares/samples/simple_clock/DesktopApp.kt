@@ -1,4 +1,4 @@
-package com.eygraber.cure.samples.simple_clock
+package com.eygraber.cares.samples.simple_clock
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

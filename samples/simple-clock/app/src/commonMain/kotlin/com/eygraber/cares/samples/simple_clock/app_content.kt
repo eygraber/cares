@@ -1,10 +1,10 @@
-package com.eygraber.cure.samples.simple_clock
+package com.eygraber.cares.samples.simple_clock
 
 import androidx.compose.runtime.Composable
-import com.eygraber.cure.JsonStateSerializer
-import com.eygraber.cure.nav.NavWindow
-import com.eygraber.cure.samples.simple_clock.clock.ClockRenderNode
-import com.eygraber.cure.samples.simple_clock.clock.ClockState
+import com.eygraber.cares.JsonStateSerializer
+import com.eygraber.cares.nav.NavWindow
+import com.eygraber.cares.samples.simple_clock.clock.ClockRenderNode
+import com.eygraber.cares.samples.simple_clock.clock.ClockState
 
 val navWindow =
   NavWindow(
