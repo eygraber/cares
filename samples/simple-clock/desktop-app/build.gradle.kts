@@ -31,6 +31,6 @@ kotlin {
 
 compose.desktop {
   application {
-    mainClass = "com.eygraber.cure.samples.simple_clock.DesktopAppKt"
+    mainClass = "com.eygraber.cares.samples.simple_clock.DesktopAppKt"
   }
 }

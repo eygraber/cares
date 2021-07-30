@@ -1,10 +1,10 @@
-package com.eygraber.cure.nav.internal
+package com.eygraber.cares.nav.internal
 
-import com.eygraber.cure.StateSerializer
-import com.eygraber.cure.nav.NavWindow
-import com.eygraber.cure.nav.NavWindowTransition
-import com.eygraber.cure.nav.RenderNodeArgs
-import com.eygraber.cure.nav.RenderNodeFactory
+import com.eygraber.cares.StateSerializer
+import com.eygraber.cares.nav.NavWindow
+import com.eygraber.cares.nav.NavWindowTransition
+import com.eygraber.cares.nav.RenderNodeArgs
+import com.eygraber.cares.nav.RenderNodeFactory
 
 internal sealed class WindowMutation<FactoryKey> {
   abstract val key: FactoryKey

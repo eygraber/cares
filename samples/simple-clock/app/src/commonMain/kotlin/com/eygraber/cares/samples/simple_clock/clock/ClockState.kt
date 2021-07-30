@@ -1,4 +1,4 @@
-package com.eygraber.cure.samples.simple_clock.clock
+package com.eygraber.cares.samples.simple_clock.clock
 
 import kotlinx.serialization.Serializable
 

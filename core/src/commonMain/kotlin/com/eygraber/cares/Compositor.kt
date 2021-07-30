@@ -1,4 +1,4 @@
-package com.eygraber.cure
+package com.eygraber.cares
 
 import kotlinx.coroutines.flow.Flow
 

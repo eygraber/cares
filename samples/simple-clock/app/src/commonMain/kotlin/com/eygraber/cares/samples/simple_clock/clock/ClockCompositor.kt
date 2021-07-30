@@ -1,6 +1,6 @@
-package com.eygraber.cure.samples.simple_clock.clock
+package com.eygraber.cares.samples.simple_clock.clock
 
-import com.eygraber.cure.Compositor
+import com.eygraber.cares.Compositor
 import kotlinx.coroutines.flow.map
 
 class ClockCompositor : Compositor<ClockState, ClockEvent> {

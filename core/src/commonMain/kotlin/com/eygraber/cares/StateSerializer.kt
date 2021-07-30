@@ -1,4 +1,4 @@
-package com.eygraber.cure
+package com.eygraber.cares
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json

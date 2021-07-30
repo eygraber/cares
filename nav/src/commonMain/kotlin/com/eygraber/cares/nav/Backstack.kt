@@ -1,12 +1,12 @@
-package com.eygraber.cure.nav
+package com.eygraber.cares.nav
 
-import com.eygraber.cure.StateSerializer
-import com.eygraber.cure.nav.internal.BackstackEntrySaveState
-import com.eygraber.cure.nav.internal.BackstackSaveState
-import com.eygraber.cure.nav.internal.RenderNodeHolder
-import com.eygraber.cure.nav.internal.WindowMutation
-import com.eygraber.cure.nav.internal.WindowMutationBuilder
-import com.eygraber.cure.nav.internal.applyMutations
+import com.eygraber.cares.StateSerializer
+import com.eygraber.cares.nav.internal.BackstackEntrySaveState
+import com.eygraber.cares.nav.internal.BackstackSaveState
+import com.eygraber.cares.nav.internal.RenderNodeHolder
+import com.eygraber.cares.nav.internal.WindowMutation
+import com.eygraber.cares.nav.internal.WindowMutationBuilder
+import com.eygraber.cares.nav.internal.applyMutations
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.KSerializer

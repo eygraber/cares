@@ -1,6 +1,6 @@
-package com.eygraber.cure.samples.simple_clock.clock
+package com.eygraber.cares.samples.simple_clock.clock
 
-import com.eygraber.cure.RenderNode
+import com.eygraber.cares.RenderNode
 import kotlinx.serialization.serializer
 
 class ClockRenderNode(
