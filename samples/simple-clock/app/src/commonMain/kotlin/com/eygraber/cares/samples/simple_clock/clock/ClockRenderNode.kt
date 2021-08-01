@@ -1,11 +1,12 @@
 package com.eygraber.cares.samples.simple_clock.clock
 
 import com.eygraber.cares.RenderNode
+import com.eygraber.cares.SerializableRenderNode
 import kotlinx.serialization.serializer
 
 class ClockRenderNode(
   initialState: ClockState
-) : RenderNode<ClockState, ClockEvent>(initialState) {
+) : RenderNode<ClockState, ClockEvent>(initialState), SerializableRenderNode<ClockState> {
   override val compositor = ClockCompositor()
   override val renderer = ClockRenderer()
 
