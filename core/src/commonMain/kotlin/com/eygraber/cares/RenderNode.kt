@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.KSerializer
 
 public abstract class RenderNode<State, Event>(
   initialState: State
@@ -15,7 +14,7 @@ public abstract class RenderNode<State, Event>(
   protected abstract val renderer: Renderer<State, Event>
   protected abstract val compositor: Compositor<State, Event>
 
-  protected val currentState: StateFlow<State> = MutableStateFlow(initialState)
+  protected val state: StateFlow<State> = MutableStateFlow(initialState)
 
   private val eventFlow: SharedFlow<Event> by lazy(::createEventFlow)
 
@@ -25,25 +24,15 @@ public abstract class RenderNode<State, Event>(
     }
   }
 
+  public fun latestState(): State = state.value
+
   @Composable
   public fun render() {
-    val data by compositor.stateFlow.collectAsState(currentState.value)
-    (currentState as MutableStateFlow).value = data
+    val data by compositor.stateFlow.collectAsState(state.value)
+    (state as MutableStateFlow).value = data
     renderer.eventEmitter.compareAndSet(null, eventEmitter)
     renderer.render(data)
   }
-
-  protected abstract val serializer: KSerializer<State>
-
-  /**
-   * Serializes the value from [currentState] to a [ByteArray] using [stateSerializer].
-   *
-   * Returns null if the value from [currentState] is null.
-   */
-  public fun serializeCurrentState(stateSerializer: StateSerializer): ByteArray? =
-    currentState.value?.let { currentState ->
-      stateSerializer.serialize(currentState, serializer)
-    }
 
   protected open fun createEventFlow(): MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 8)
 }

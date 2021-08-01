@@ -1,5 +1,6 @@
 package com.eygraber.cares.nav.internal
 
+import com.eygraber.cares.SerializableRenderNode
 import com.eygraber.cares.StateSerializer
 import com.eygraber.cares.nav.BackstackEntry
 import com.eygraber.cares.nav.NavWindow
@@ -27,7 +28,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
     wasContentPreviouslyVisible = wasContentPreviouslyVisible,
     isHidden = isHidden,
     args = args,
-    savedState = node.serializeCurrentState(stateSerializer),
+    savedState = (node as? SerializableRenderNode<*>)?.serializeLatestState(stateSerializer),
     isAttached = true
   )
 
@@ -40,7 +41,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      savedState = node.serializeCurrentState(stateSerializer),
+      savedState = (node as? SerializableRenderNode<*>)?.serializeLatestState(stateSerializer),
       isAttached = true
     )
   }

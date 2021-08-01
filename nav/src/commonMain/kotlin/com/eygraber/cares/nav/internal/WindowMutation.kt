@@ -1,5 +1,6 @@
 package com.eygraber.cares.nav.internal
 
+import com.eygraber.cares.SerializableRenderNode
 import com.eygraber.cares.StateSerializer
 import com.eygraber.cares.nav.NavWindow
 import com.eygraber.cares.nav.NavWindowTransition
@@ -278,7 +279,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               wasContentPreviouslyVisible = !holder.isHidden,
               isHidden = holder.isHidden,
               args = holder.args,
-              savedState = holder.node.serializeCurrentState(stateSerializer),
+              savedState = (holder.node as? SerializableRenderNode<*>)?.serializeLatestState(stateSerializer),
               transition = transition
             )
           }
