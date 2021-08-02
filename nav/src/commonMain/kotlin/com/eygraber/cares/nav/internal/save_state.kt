@@ -4,6 +4,7 @@ import com.eygraber.cares.SerializableRenderNode
 import com.eygraber.cares.StateSerializer
 import com.eygraber.cares.nav.BackstackEntry
 import com.eygraber.cares.nav.NavWindow
+import com.eygraber.cares.nav.NavWindowParent
 import com.eygraber.cares.nav.RenderNodeArgs
 import com.eygraber.cares.nav.RenderNodeFactory
 import kotlinx.serialization.Serializable
@@ -30,6 +31,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
     isHidden = isHidden,
     args = args,
     savedState = (node as? SerializableRenderNode<*>)?.serializeLatestState(stateSerializer),
+    childNavWindowSavedState = (node as? NavWindowParent<*>)?.childNavWindow?.serialize(),
     isAttached = true
   )
 
@@ -43,6 +45,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
       isHidden = isHidden,
       args = args,
       savedState = (node as? SerializableRenderNode<*>)?.serializeLatestState(stateSerializer),
+      childNavWindowSavedState = (node as? NavWindowParent<*>)?.childNavWindow?.serialize(),
       isAttached = true
     )
   }
@@ -54,6 +57,7 @@ internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
     isHidden = isHidden,
     args = args,
     savedState = savedState,
+    childNavWindowSavedState = childNavWindowSavedState,
     isAttached = false
   )
 }
@@ -66,6 +70,7 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
   val isHidden: Boolean,
   val args: ByteArray?,
   val savedState: ByteArray?,
+  val childNavWindowSavedState: ByteArray?,
   val isAttached: Boolean
 ) {
   fun toRenderNodeHolder(
@@ -90,7 +95,11 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
             NavWindow.SavedState(savedState, stateSerializer)
           }
         )
-      ),
+      ).apply {
+        if(this is NavWindowParent<*> && childNavWindowSavedState != null) {
+          childNavWindow.restore(childNavWindowSavedState)
+        }
+      },
       isBeingRestoredFromBackstack = false
     )
   }
@@ -101,7 +110,8 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      savedState = savedState
+      savedState = savedState,
+      childNavWindowSavedState = childNavWindowSavedState
     )
   }
 }

@@ -3,6 +3,7 @@ package com.eygraber.cares.nav.internal
 import com.eygraber.cares.SerializableRenderNode
 import com.eygraber.cares.StateSerializer
 import com.eygraber.cares.nav.NavWindow
+import com.eygraber.cares.nav.NavWindowParent
 import com.eygraber.cares.nav.NavWindowTransition
 import com.eygraber.cares.nav.RenderNodeArgs
 import com.eygraber.cares.nav.RenderNodeFactory
@@ -202,7 +203,11 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
                   NavWindow.SavedState(savedState, stateSerializer)
                 }
               )
-            ),
+            ).apply {
+              if(this is NavWindowParent<*> && holder.childNavWindowSavedState != null) {
+                childNavWindow.restore(holder.childNavWindowSavedState)
+              }
+            },
             isBeingRestoredFromBackstack = mutation.isBeingRestoredFromBackstack,
             transition = transition
           )
@@ -281,6 +286,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
               isHidden = holder.isHidden,
               args = holder.args,
               savedState = (holder.node as? SerializableRenderNode<*>)?.serializeLatestState(stateSerializer),
+              childNavWindowSavedState = (holder.node as? NavWindowParent<*>)?.childNavWindow?.serialize(),
               transition = transition
             )
           }

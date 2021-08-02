@@ -56,6 +56,7 @@ internal sealed class RenderNodeHolder<FactoryKey> {
     override val isHidden: Boolean,
     override val args: ByteArray?,
     val savedState: ByteArray?,
+    val childNavWindowSavedState: ByteArray?,
     override val transition: NavWindowTransition? = null
   ) : RenderNodeHolder<FactoryKey>() {
     override val isShowOrHideMutation: Boolean = false
