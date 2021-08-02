@@ -35,7 +35,6 @@ public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) ->
 public class NavWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
   private val stateSerializer: StateSerializer,
-  restoreState: ByteArray? = null,
   private val renderNodeFactory: RenderNodeFactory<FactoryKey>
 ) {
   @Composable
@@ -78,6 +77,19 @@ public class NavWindow<FactoryKey>(
     )
 
     return stateSerializer.serialize(data, NavWindowSaveState.serializer(factoryKeySerializer))
+  }
+
+  public fun restore(data: ByteArray) {
+    val state = stateSerializer.deserialize(
+      data,
+      NavWindowSaveState.serializer(factoryKeySerializer)
+    )
+
+    lock.withLock {
+      backstack.restore(state.backstack)
+
+      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactory)
+    }
   }
 
   public fun contains(key: FactoryKey, id: String = key.toString()): Boolean =
@@ -166,31 +178,11 @@ public class NavWindow<FactoryKey>(
 
   private val lock = reentrantLock()
   private val nodes = MutableStateFlow<List<RenderNodeHolder<FactoryKey>>>(emptyList())
-  private val backstack: BackstackImpl<FactoryKey>
-
-  init {
-    if(restoreState == null) {
-      backstack = BackstackImpl(
-        nodes,
-        stateSerializer,
-        renderNodeFactory
-      )
-    }
-    else {
-      val state = stateSerializer.deserialize(
-        restoreState,
-        NavWindowSaveState.serializer(factoryKeySerializer)
-      )
-
-      backstack = BackstackImpl(
-        nodes,
-        stateSerializer,
-        renderNodeFactory,
-        state.backstack
-      )
-      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactory)
-    }
-  }
+  private val backstack = BackstackImpl(
+    nodes,
+    stateSerializer,
+    renderNodeFactory
+  )
 
   public interface UpdateBuilder<FactoryKey> {
     public fun add(

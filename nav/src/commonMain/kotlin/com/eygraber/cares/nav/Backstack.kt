@@ -41,10 +41,13 @@ public interface Backstack<FactoryKey> {
 internal class BackstackImpl<FactoryKey>(
   private val nodes: MutableStateFlow<List<RenderNodeHolder<FactoryKey>>>,
   private val stateSerializer: StateSerializer,
-  private val renderNodeFactory: RenderNodeFactory<FactoryKey>,
-  saveState: BackstackSaveState<FactoryKey>? = null
+  private val renderNodeFactory: RenderNodeFactory<FactoryKey>
 ) : Backstack<FactoryKey> {
-  private val stack = atomic(saveState?.toBackstack() ?: emptyList())
+  private val stack = atomic(emptyList<BackstackEntry<FactoryKey>>())
+
+  internal fun restore(saveState: BackstackSaveState<FactoryKey>) {
+    stack.value = saveState.toBackstack()
+  }
 
   override val size: Int get() = stack.value.size
 
