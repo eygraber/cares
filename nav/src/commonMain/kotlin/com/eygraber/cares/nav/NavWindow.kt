@@ -30,7 +30,7 @@ public data class RenderNodeArgs<FactoryKey>(
   val savedState: NavWindow.SavedState?
 )
 
-public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *>
+public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *, *>
 
 public class NavWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
