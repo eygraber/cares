@@ -20,6 +20,6 @@ dependencies {
   implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion")
   implementation("com.vanniktech:gradle-maven-publish-plugin:0.17.0")
   implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.5.0")
-  implementation("org.jetbrains.compose:compose-gradle-plugin:0.5.0-build270")
+  implementation("org.jetbrains.compose:compose-gradle-plugin:1.0.0-alpha2")
   implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicFuVersion")
 }
