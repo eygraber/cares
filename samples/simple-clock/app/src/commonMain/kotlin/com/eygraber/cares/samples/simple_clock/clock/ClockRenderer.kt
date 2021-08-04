@@ -21,12 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.eygraber.cares.EventEmitter
 import com.eygraber.cares.Renderer
 import com.eygraber.compose.colorpicker.ColorPicker
 
-class ClockRenderer : Renderer<ClockState, ClockEvent>() {
+class ClockRenderer : Renderer<ClockState, ClockEvent> {
   @Composable
-  override fun render(state: ClockState) {
+  override fun render(state: ClockState, emitEvent: EventEmitter<ClockEvent>) {
     Card(
       shape = MaterialTheme.shapes.small.copy(all = CornerSize(8.dp)),
       elevation = 4.dp,
