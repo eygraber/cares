@@ -114,6 +114,7 @@ internal sealed class WindowMutation<FactoryKey> {
 }
 
 internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
+  navWindow: NavWindow<FactoryKey>,
   mutations: List<WindowMutation<FactoryKey>>,
   stateSerializer: StateSerializer,
   renderNodeFactory: RenderNodeFactory<FactoryKey>,
@@ -149,7 +150,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
           wasContentPreviouslyVisible = false,
           isHidden = mutation.isHidden,
           args = mutation.args,
-          node = renderNodeFactory(
+          node = navWindow.renderNodeFactory(
             RenderNodeArgs(
               key = mutation.key,
               args = mutation.args?.let { args ->
@@ -191,7 +192,7 @@ internal fun <FactoryKey> List<RenderNodeHolder<FactoryKey>>.applyMutations(
             wasContentPreviouslyVisible = false,
             isHidden = mutation.isHidden ?: holder.isHidden,
             args = holder.args,
-            node = renderNodeFactory(
+            node = navWindow.renderNodeFactory(
               RenderNodeArgs(
                 key = mutation.key,
                 args = holder.args?.let { args ->

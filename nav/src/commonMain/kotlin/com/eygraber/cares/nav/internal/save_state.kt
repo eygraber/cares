@@ -14,9 +14,10 @@ internal class NavWindowSaveState<FactoryKey>(
   val backstack: BackstackSaveState<FactoryKey>
 ) {
   fun toRenderNodeHolders(
+    navWindow: NavWindow<FactoryKey>,
     stateSerializer: StateSerializer,
     renderNodeFactory: RenderNodeFactory<FactoryKey>
-  ) = nodes.map { it.toRenderNodeHolder(stateSerializer, renderNodeFactory) }
+  ) = nodes.map { it.toRenderNodeHolder(navWindow, stateSerializer, renderNodeFactory) }
 }
 
 internal fun <FactoryKey> RenderNodeHolder<FactoryKey>.toSaveState(
@@ -68,6 +69,7 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
   val isAttached: Boolean
 ) {
   fun toRenderNodeHolder(
+    navWindow: NavWindow<FactoryKey>,
     stateSerializer: StateSerializer,
     renderNodeFactory: RenderNodeFactory<FactoryKey>
   ) = if(isAttached) {
@@ -78,7 +80,7 @@ internal class RenderNodeHolderSaveState<FactoryKey>(
       wasContentPreviouslyVisible = wasContentPreviouslyVisible,
       isHidden = isHidden,
       args = args,
-      node = renderNodeFactory(
+      node = navWindow.renderNodeFactory(
         RenderNodeArgs(
           key = key,
           args = args?.let { args ->

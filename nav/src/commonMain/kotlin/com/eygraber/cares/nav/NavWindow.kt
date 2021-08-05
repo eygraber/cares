@@ -30,7 +30,8 @@ public data class RenderNodeArgs<FactoryKey>(
   val savedState: NavWindow.SavedState?
 )
 
-public typealias RenderNodeFactory<FactoryKey> = (RenderNodeArgs<FactoryKey>) -> RenderNode<*, *, *>
+public typealias RenderNodeFactory<FactoryKey> =
+  NavWindow<FactoryKey>.(RenderNodeArgs<FactoryKey>) -> RenderNode<*, *, *>
 
 public class NavWindow<FactoryKey>(
   private val factoryKeySerializer: KSerializer<FactoryKey>,
@@ -52,6 +53,7 @@ public class NavWindow<FactoryKey>(
   ) {
     lock.withLock {
       nodes.value = nodes.value.applyMutations(
+        this,
         WindowMutationBuilder<FactoryKey>(stateSerializer).apply(builder).build(),
         stateSerializer,
         renderNodeFactory,
@@ -88,7 +90,7 @@ public class NavWindow<FactoryKey>(
     lock.withLock {
       backstack.restore(state.backstack)
 
-      nodes.value = state.toRenderNodeHolders(stateSerializer, renderNodeFactory)
+      nodes.value = state.toRenderNodeHolders(this, stateSerializer, renderNodeFactory)
     }
   }
 
@@ -162,6 +164,7 @@ public class NavWindow<FactoryKey>(
 
   private fun applyDisappearingMutation(holder: RenderNodeHolder.Disappearing<FactoryKey>) = lock.withLock {
     nodes.value = nodes.value.applyMutations(
+      this,
       listOf(
         WindowMutation.Disappearing(
           key = holder.key,
@@ -171,7 +174,7 @@ public class NavWindow<FactoryKey>(
         )
       ),
       stateSerializer,
-      renderNodeFactory,
+      with(this) { renderNodeFactory },
       holder.transition?.let { { _: FactoryKey, _: String -> it } }
     )
   }
@@ -179,9 +182,10 @@ public class NavWindow<FactoryKey>(
   private val lock = reentrantLock()
   private val nodes = MutableStateFlow<List<RenderNodeHolder<FactoryKey>>>(emptyList())
   private val backstack = BackstackImpl(
+    this,
     nodes,
     stateSerializer,
-    renderNodeFactory
+    with(renderNodeFactory) { this }
   )
 
   public interface UpdateBuilder<FactoryKey> {

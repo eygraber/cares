@@ -39,6 +39,7 @@ public interface Backstack<FactoryKey> {
 }
 
 internal class BackstackImpl<FactoryKey>(
+  private val navWindow: NavWindow<FactoryKey>,
   private val nodes: MutableStateFlow<List<RenderNodeHolder<FactoryKey>>>,
   private val stateSerializer: StateSerializer,
   private val renderNodeFactory: RenderNodeFactory<FactoryKey>
@@ -68,6 +69,7 @@ internal class BackstackImpl<FactoryKey>(
     )
 
     nodes.value = nodes.value.applyMutations(
+      navWindow,
       mutations,
       stateSerializer,
       renderNodeFactory,
@@ -128,6 +130,7 @@ internal class BackstackImpl<FactoryKey>(
         stack.value = stack.value.dropLast(1)
 
         nodes.value = nodes.value.applyMutations(
+          navWindow,
           peek.mutations,
           stateSerializer,
           renderNodeFactory,
