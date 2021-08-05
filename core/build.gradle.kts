@@ -16,12 +16,10 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation(kotlin("stdlib-common"))
+        api(libs.kotlinx.atomicFu)
 
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
-
-        api("org.jetbrains.kotlinx:atomicfu:$atomicFuVersion")
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization)
 
         implementation(compose.runtime)
       }

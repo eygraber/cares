@@ -1,15 +1,14 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.accessors.dm.LibrariesForLibs
+
+val libs = the<LibrariesForLibs>()
 
 plugins {
   id("io.gitlab.arturbosch.detekt")
 }
 
-apply(from = rootProject.file("buildSrc/versions.gradle"))
-
-val detektVersion = project.findProperty("detektVersion") as String
-
 detekt {
-  toolVersion = detektVersion
+  toolVersion = libs.versions.detekt.get()
 
   input.from("build.gradle.kts")
 
@@ -27,7 +26,7 @@ tasks.withType<Detekt>().configureEach {
 }
 
 dependencies {
-  detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
+  detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.17.0")
   detektPlugins("com.eygraber.detekt.rules:formatting:1.0.10")
   detektPlugins("com.eygraber.detekt.rules:style:1.0.10")
 }
