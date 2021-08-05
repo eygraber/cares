@@ -12,19 +12,20 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        api(project(":core"))
-        api(project(":nav"))
+        api(projects.core)
+        api(projects.nav)
 
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
-        implementation("com.soywiz.korlibs.klock:klock:2.1.2")
-
-        implementation("com.eygraber:compose-color-picker:0.0.2-SNAPSHOT")
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization)
 
         api(compose.runtime)
         api(compose.foundation)
         api(compose.material)
         api(compose.materialIconsExtended)
+
+        implementation("com.soywiz.korlibs.klock:klock:2.1.2")
+
+        implementation("com.eygraber:compose-color-picker:0.0.2-SNAPSHOT")
       }
     }
 
