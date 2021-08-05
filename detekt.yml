@@ -31,7 +31,6 @@ console-reports:
 
 comments:
   active: false
-  excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
   AbsentOrWrongFileLicense:
     active: false
     licenseTemplateFile: 'license.template'

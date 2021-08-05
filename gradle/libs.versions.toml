@@ -3,7 +3,7 @@ agp = "7.0.0"
 
 compose = "1.0.0-alpha2"
 
-detekt = "1.17.1"
+detekt = "1.18.0-RC2"
 detektEygraber = "1.0.10"
 
 dokka = "1.5.0"
