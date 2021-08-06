@@ -64,9 +64,9 @@ public class NavWindow<FactoryKey>(
 
   public fun <R> withBackstack(
     @BackstackDsl block: Backstack<FactoryKey>.() -> R
-  ) {
+  ): R {
     lock.withLock {
-      backstack.block()
+      return backstack.block()
     }
   }
 

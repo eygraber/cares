@@ -26,6 +26,9 @@ publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }
 serialization = { id = "kotlin-serialization", version.ref = "kotlin" }
 
 [libraries]
+androidx-activityCompose = "androidx.activity:activity-compose:1.3.0"
+androidx-appCompat = "androidx.appcompat:appcompat:1.3.1"
+
 buildscript-agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 buildscript-atomicFu = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "kotlinx-atomicFu" }
 buildscript-compose = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
