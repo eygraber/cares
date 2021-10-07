@@ -10,7 +10,7 @@ plugins {
 detekt {
   toolVersion = libs.versions.detekt.get()
 
-  input.from("build.gradle.kts")
+  source.from("build.gradle.kts")
 
   autoCorrect = true
   parallel = true
@@ -22,7 +22,7 @@ detekt {
 
 tasks.withType<Detekt>().configureEach {
   // Target version of the generated JVM bytecode. It is used for type resolution.
-  jvmTarget = "11"
+  jvmTarget = libs.versions.jdk.get()
 }
 
 dependencies {

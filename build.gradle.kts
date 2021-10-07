@@ -17,14 +17,14 @@ allprojects {
   plugins.withId("org.jetbrains.kotlin.multiplatform") {
     with(extensions.getByType<KotlinMultiplatformExtension>()) {
       sourceSets.all {
-        languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+        languageSettings.optIn("kotlin.RequiresOptIn")
       }
 
       jvm().compilations.all {
         kotlinOptions {
-          jvmTarget = JavaVersion.VERSION_11.toString()
-          compileKotlinTask.sourceCompatibility = JavaVersion.VERSION_11.toString()
-          compileKotlinTask.targetCompatibility = JavaVersion.VERSION_11.toString()
+          jvmTarget = libs.versions.jdk.get()
+          compileKotlinTask.sourceCompatibility = libs.versions.jdk.get()
+          compileKotlinTask.targetCompatibility = libs.versions.jdk.get()
         }
       }
 
