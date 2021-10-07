@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 repositories {
   google()
@@ -14,9 +15,18 @@ allprojects {
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
   }
 
+  tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+      jvmTarget = JavaVersion.VERSION_11.toString()
+      sourceCompatibility = JavaVersion.VERSION_11.toString()
+      targetCompatibility = JavaVersion.VERSION_11.toString()
+      freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
+    }
+  }
+
   plugins.withId("org.jetbrains.kotlin.multiplatform") {
     with(extensions.getByType<KotlinMultiplatformExtension>()) {
-      sourceSets.all {
+      sourceSets.configureEach {
         languageSettings.optIn("kotlin.RequiresOptIn")
       }
 
