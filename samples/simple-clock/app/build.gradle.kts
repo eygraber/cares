@@ -23,9 +23,9 @@ kotlin {
         api(compose.material)
         api(compose.materialIconsExtended)
 
-        implementation("com.soywiz.korlibs.klock:klock:2.1.2")
+        implementation(libs.sample.klock)
 
-        implementation("com.eygraber:compose-color-picker:0.0.2-SNAPSHOT")
+        implementation(libs.sample.colorPicker)
       }
     }
 
