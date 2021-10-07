@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-public abstract class RenderNode<State, Event, Intent>(
+public abstract class RenderNode<State, Event>(
   initialState: State
 ) {
-  protected abstract val renderer: Renderer<State, Event, Intent>
+  protected abstract val renderer: Renderer<State, Event>
   protected abstract val compositor: Compositor<State, Event>
 
   private val stateFlow: StateFlow<State> = MutableStateFlow(initialState)
@@ -25,16 +25,9 @@ public abstract class RenderNode<State, Event, Intent>(
     )
   }
 
-  private val intents: EmitterConsumer<Intent> by lazy {
-    EmitterConsumer(
-      flow = createIntentsFlow()
-    )
-  }
-
   public fun currentState(): State = stateFlow.value
 
   protected open fun onEvent(event: Event) {}
-  protected open fun onIntent(intent: Intent) {}
 
   @Composable
   public fun render() {
@@ -44,23 +37,14 @@ public abstract class RenderNode<State, Event, Intent>(
           onEvent(event)
         }
       }
-
-      launch {
-        intents().collect { intent ->
-          onIntent(intent)
-        }
-      }
     }
 
     val flow = remember { compositor.stateFlow(events()) }
     val state by flow.collectAsState(stateFlow.value)
     (stateFlow as MutableStateFlow).value = state
-    renderer.render(state, events, intents)
+    renderer.render(state, events)
   }
 
   protected open fun createEventsFlow(): MutableSharedFlow<Event> =
-    MutableSharedFlow(extraBufferCapacity = 8)
-
-  protected open fun createIntentsFlow(): MutableSharedFlow<Intent> =
     MutableSharedFlow(extraBufferCapacity = 8)
 }
