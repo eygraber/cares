@@ -25,12 +25,11 @@ import com.eygraber.cares.Emitter
 import com.eygraber.cares.Renderer
 import com.eygraber.compose.colorpicker.ColorPicker
 
-class ClockRenderer : Renderer<ClockState, ClockEvent, Unit> {
+class ClockRenderer : Renderer<ClockState, ClockEvent> {
   @Composable
   override fun render(
     state: ClockState,
-    emitEvent: Emitter<ClockEvent>,
-    emitIntent: Emitter<Unit>
+    emitEvent: Emitter<ClockEvent>
   ) {
     Card(
       shape = MaterialTheme.shapes.small.copy(all = CornerSize(8.dp)),

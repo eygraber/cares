@@ -6,7 +6,7 @@ import kotlinx.serialization.serializer
 
 class ClockRenderNode(
   initialState: ClockState
-) : RenderNode<ClockState, ClockEvent, Unit>(initialState), SerializableRenderNode<ClockState> {
+) : RenderNode<ClockState, ClockEvent>(initialState), SerializableRenderNode<ClockState> {
   override val compositor = ClockCompositor()
   override val renderer = ClockRenderer()
 
