@@ -4,7 +4,6 @@ plugins {
   id("org.jetbrains.compose")
   id("kotlinx-atomicfu")
   detekt
-  `detekt-hotfix`
   publish
 }
 
