@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
   implementation(projects.core)
-  implementation(projects.nav)
+  implementation(projects.portal)
 
   implementation(compose.material)
   implementation(compose.materialIconsExtended)
